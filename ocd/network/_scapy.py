@@ -12,14 +12,17 @@ class ScapyWrapper(object):
         # TODO
         pass
 
-    def unique_macs(self, time_slot=None, ip=None, hostname=None):
+    def load(self, capfile):
+        # TODO
+        pass
+
+    def unique_macs(self, time_slot=None, ip=None):
         """Get a unique set of MAC addresses within the capture
 
         Args:
             time_slot (optional[tuple]): a tuple of two specifying the
                 start and end time in the format of timestamp
-            ip (optional[str]):
-            hostname (optional[str]):
+            ip (optional[list(str)]):
 
         Returns:
             set(str): mac addresses

@@ -20,6 +20,7 @@ class NetworkSensor(Sensor):
         Args:
             backend (str): either 'pyshark' or 'scapy'
         """
+        # TODO: add cap file in constructor
         if backend == 'pyshark':
             from network._pyshark import PysharkWrapper
             self.wrapper = PysharkWrapper()
@@ -29,22 +30,38 @@ class NetworkSensor(Sensor):
         else:
             raise NotImplementedError('Backend not supported!')
 
-    def sniff(self, timeout=5):
-        self.wrapper.sniff(timeout)
+    def sniff(self, interface, timeout=5):
+        """Sniff from an interface for a period of time
 
-    def unique_macs(self, time_slot=None, ip=None, hostname=None):
+        Args:
+            interface (str): the interface to sniff from, e.g. en0
+            timeout (optional[int]): time to sniff
+        :return:
+        """
+        self.wrapper.sniff(interface, timeout)
+
+    def load(self, capfile):
+        """Load a capture file. Backend could change accordingly.
+        Args:
+            capfile: capture file
+        """
+        # TODO: check file type
+        self.wrapper.load(capfile)
+
+    def unique_macs(self, time_slot=None, ip=None):
         """Get a unique set of MAC addresses within the capture
 
         Args:
             time_slot (optional[tuple]): a tuple of two specifying the
                 start and end time in the format of timestamp
-            ip (optional[str]):
-            hostname (optional[str]):
+            ip (optional[list(str)]):
 
         Returns:
             set(str): mac addresses
         """
-        return self.wrapper.unique_macs(time_slot, ip, hostname)
+        if ip is not None and not isinstance(ip, list):
+            ip = [ip]
+        return self.wrapper.unique_macs(time_slot, ip)
 
     def unique_ips(self, time_slot=None, src_ip=None, dst_ip=None):
         """Get a unique set of ips within the capture
@@ -63,6 +80,12 @@ class NetworkSensor(Sensor):
         Returns:
             set(str): unique ip addresses
         """
+        if src_ip is not None and dst_ip is not None:
+            raise Exception("src_ip and dst_ip shouldn't be both specified!")
+        if src_ip is not None and not isinstance(src_ip, list):
+            src_ip = [src_ip]
+        if dst_ip is not None and not isinstance(dst_ip, list):
+            dst_ip = [dst_ip]
         return self.wrapper.unique_ips(time_slot, src_ip, dst_ip)
 
     def unique_protocols(self, time_slot=None, src_ip=None, dst_ip=None):
@@ -77,6 +100,12 @@ class NetworkSensor(Sensor):
         Returns:
             set(str): unique protocols
         """
+        if src_ip is not None and dst_ip is not None:
+            raise Exception("src_ip and dst_ip shouldn't be both specified!")
+        if src_ip is not None and not isinstance(src_ip, list):
+            src_ip = [src_ip]
+        if dst_ip is not None and not isinstance(dst_ip, list):
+            dst_ip = [dst_ip]
         return self.wrapper.unique_protocols(time_slot, src_ip, dst_ip)
 
     def unique_ports(self, time_slot=None, ip=None):
@@ -90,6 +119,8 @@ class NetworkSensor(Sensor):
         Returns:
             set(int): unique ports
         """
+        if ip is not None and not isinstance(ip, list):
+            ip = [ip]
         return self.wrapper.unique_ports(time_slot, ip)
 
 
