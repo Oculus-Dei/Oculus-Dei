@@ -200,8 +200,34 @@ class NetworkSensor(Sensor):
 
 
 class HostSensor(Sensor):
-    def sniff(self):
-        # TODO
+    def unique_logins(self, time_slot):
+        pass
+
+    def unique_logouts(self, time_slot):
+        pass
+
+    def unique_authfailures(self, time_slot):
+        pass
+
+    def stat_logins(self, time_slot):
+        pass
+
+    def stat_logouts(self, time_slot):
+        pass
+
+    def stat_authfailures(self, time_slot):
+        pass
+
+    def cpu_usage(self):
+        pass
+
+    def mem_usage(self):
+        pass
+
+    def unique_apps(self):
+        pass
+
+    def processes(self):
         pass
 
 
