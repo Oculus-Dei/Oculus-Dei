@@ -25,8 +25,8 @@ class NetworkSensor(Sensor):
             from network._pyshark import PysharkWrapper
             self.wrapper = PysharkWrapper()
         elif backend == 'scapy':
-            from network._scapy import ScappyWrapper
-            self.wrapper = ScappyWrapper()
+            from network._scapy import ScapyWrapper
+            self.wrapper = ScapyWrapper()
         else:
             raise NotImplementedError('Backend not supported!')
 

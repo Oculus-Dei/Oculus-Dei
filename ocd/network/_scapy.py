@@ -6,15 +6,18 @@ All rights reserved.
 TODO: purpose
 """
 
+from scapy.all import *
 
 class ScapyWrapper(object):
-    def sniff(self, timeout=5):
-        # TODO
-        pass
+
+    def __init__(self):
+        self.packets = None
+
+    def sniff(self, interface,timeout=5):
+        self.packets = sniff(iface=interface,timeout=timeout);
 
     def load(self, capfile):
-        # TODO
-        pass
+        self.packets = rdpcap(capfile);
 
     def unique_macs(self, time_slot=None, ip=None):
         """Get a unique set of MAC addresses within the capture
@@ -27,8 +30,16 @@ class ScapyWrapper(object):
         Returns:
             set(str): mac addresses
         """
-        # TODO
-        pass
+        packets = self.packets
+        macs = set()
+        if time_slot:
+            start, end = time_slot
+            packets = packets.filter(lambda p: start <= p.time <= end)
+        if ip:
+            packets = packets.filter(lambda p: IP in p and (p[IP].src == ip or p[IP].dst == ip))
+        macs = macs.union(map(lambda p: p[Ether].src, packets))
+        macs = macs.union(map(lambda p: p[Ether].dst, packets))
+        return macs
 
     def unique_ips(self, time_slot=None, src_ip=None, dst_ip=None):
         """Get a unique set of ips within the capture
@@ -47,8 +58,12 @@ class ScapyWrapper(object):
         Returns:
             set(str): unique ip addresses
         """
-        # TODO
-        pass
+        packets = self.packets.filter(lambda p: IP in p)
+        ips = set();
+        if time_slot:
+            start, end = time_slot
+            packets = packets.filter(lambda p: start <= p.time <= end)
+
 
     def unique_protocols(self, time_slot=None, src_ip=None, dst_ip=None):
         """Get a unique set of protocols within the capture
