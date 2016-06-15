@@ -100,8 +100,8 @@ class PysharkWrapper(object):
             packets = filter(lambda p: start <= p.sniff_timestamp < end, packets)
         if ip:
             packets = filter(lambda p: 'ip' in p, packets)
-            p_src = filter(lambda p: p.ip.src == ip, packets)
-            p_dst = filter(lambda p: p.ip.dst == ip, packets)
+            p_src = filter(lambda p: p.ip.src in ip, packets)
+            p_dst = filter(lambda p: p.ip.dst in ip, packets)
         else:
             p_src = p_dst = packets
 
@@ -136,9 +136,9 @@ class PysharkWrapper(object):
         macs = {}
         for p in packets:
             if 'ip' in p:
-                if p.ip.src == ip:
+                if p.ip.src in ip:
                     utils.dict_acc(macs, {p.eth.src: 1})
-                if p.ip.dst == ip:
+                if p.ip.dst in ip:
                     utils.dict_acc(macs, {p.eth.dst: 1})
         return macs
 
