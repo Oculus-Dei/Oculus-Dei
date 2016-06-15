@@ -1,3 +1,5 @@
+
+
 # encoding: utf-8
 """
 Created by misaka-10032 (longqic@andrew.cmu.edu).
@@ -29,16 +31,7 @@ class ScapyWrapper(object):
         Returns:
             set(str): mac addresses
         """
-        packets = self.packets
-        macs = set()
-        if time_slot:
-            start, end = time_slot
-            packets = packets.filter(lambda p: start <= p.time <= end)
-        if ip:
-            packets = packets.filter(lambda p: IP in p and (p[IP].src == ip or p[IP].dst == ip))
-        macs = macs.union(map(lambda p: p[Ether].src, packets))
-        macs = macs.union(map(lambda p: p[Ether].dst, packets))
-        return macs
+        return self.stat_macs(time_slot,ip).keys()
 
     def unique_ips(self, time_slot=None, src_ip=None, dst_ip=None):
         """Get a unique set of ips within the capture
@@ -104,8 +97,24 @@ class ScapyWrapper(object):
         Returns:
             dict{str->int}: mac addresses and the freq it appears
         """
-        # TODO@manga
-        pass
+        if not self.packets:
+            return {}
+        else:
+            packets = self.packets
+        macs = []
+        if time_slot:
+            start, end = time_slot
+            packets = packets.filter(lambda p: start <= p.time <= end)
+        if ip:
+            packets = packets.filter(lambda p: IP in p and (p[IP].src == ip or p[IP].dst == ip)) 
+        macs = map(lambda p: p[Ether].src, packets) + map(lambda p: p[Ether].dst, packets)
+        mac_dict = {}
+        for mac in macs:
+            if mac in mac_dict:
+                mac_dict[mac] += 1
+            else:
+                mac_dict[mac] = 1
+        return mac_dict
 
     def stat_ips(self, time_slot=None, src_ip=None, dst_ip=None):
         """Get a dict of ips and their freq
@@ -124,8 +133,17 @@ class ScapyWrapper(object):
         Returns:
             dict{str->int}: ip addresses and freq
         """
-        # TODO@manga
-        pass
+        if not self.packets:
+            return {}
+        else:
+            packets = self.packets
+        ips = []
+        if time_slot:
+            start, end = time_slot
+            packets = packets.filter(lambda p: start <= p.time <= end)
+        if src_ip and dst_ip:
+            
+
 
     def stat_protocols(self, time_slot=None, src_ip=None, dst_ip=None):
         """Get a dict of protocols and freq
