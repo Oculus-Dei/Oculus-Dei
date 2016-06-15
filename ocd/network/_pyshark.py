@@ -143,3 +143,66 @@ class PysharkWrapper(object):
         ports = ports.union(map(lambda p: int(p.udp.srcport), udp_packets))
 
         return ports
+
+    def stat_macs(self, time_slot=None, ip=None):
+        """Get a dict of MAC addresses with the freq it appears
+
+        Args:
+            time_slot (optional[tuple]): a tuple of two specifying the
+                start and end time in the format of timestamp
+            ip (optional[list(str)]):
+
+        Returns:
+            dict{str->int}: mac addresses and the freq it appears
+        """
+        # TODO@dan
+        pass
+
+    def stat_ips(self, time_slot=None, src_ip=None, dst_ip=None):
+        """Get a dict of ips and their freq
+
+        It can be either src ip or dst ip. If src ip is specified,
+        then dst ips are returned, vice versa. If none is specified,
+        all unique ips will be returned.
+
+        Args:
+            time_slot (optional[tuple]): a tuple of two specifying the
+                start and end time in the format of timestamp
+            src_ip (optional[list(str), or single str]): src ip(s)
+            dst_ip (optional[list(str), or single str]): dst ip(s),
+                src_ip and dst_ip shouldn't be both specified
+
+        Returns:
+            dict{str->int}: ip addresses and freq
+        """
+        # TODO@dan
+        pass
+
+    def stat_protocols(self, time_slot=None, src_ip=None, dst_ip=None):
+        """Get a dict of protocols and freq
+
+        Args:
+            time_slot (optional[tuple]): a tuple of two specifying the
+                start and end time in the format of timestamp
+            src_ip (optional[list(str), or single str]): src ip(s)
+            dst_ip (optional[list(str), or single str]): dst ip(s)
+
+        Returns:
+            dict{str->int}: unique protocols
+        """
+        # TODO@dan
+        pass
+
+    def stat_ports(self, time_slot=None, ip=None):
+        """Get a dict of ports within the capture
+
+        Args:
+            time_slot (optional[tuple]): a tuple of two specifying the
+                start and end time in the format of timestamp
+            ip (optional[list(str), or single str]): the corresponding ip(s)
+
+        Returns:
+            dict{int->int}: unique ports
+        """
+        # TODO@dan
+        pass
