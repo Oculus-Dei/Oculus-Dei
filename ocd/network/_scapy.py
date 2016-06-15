@@ -50,11 +50,7 @@ class ScapyWrapper(object):
         Returns:
             set(str): unique ip addresses
         """
-        packets = self.packets.filter(lambda p: IP in p)
-        ips = set();
-        if time_slot:
-            start, end = time_slot
-            packets = packets.filter(lambda p: start <= p.time <= end)
+        return self.stat_ips(time_slot,src_ip,dst_ip).keys()
 
 
     def unique_protocols(self, time_slot=None, src_ip=None, dst_ip=None):
@@ -97,16 +93,13 @@ class ScapyWrapper(object):
         Returns:
             dict{str->int}: mac addresses and the freq it appears
         """
-        if not self.packets:
-            return {}
-        else:
-            packets = self.packets
+        packets = self.packets
         macs = []
         if time_slot:
             start, end = time_slot
             packets = packets.filter(lambda p: start <= p.time <= end)
         if ip:
-            packets = packets.filter(lambda p: IP in p and (p[IP].src == ip or p[IP].dst == ip)) 
+            packets = packets.filter(lambda p: IP in p and (p[IP].src in ip or p[IP].dst in ip)) 
         macs = map(lambda p: p[Ether].src, packets) + map(lambda p: p[Ether].dst, packets)
         mac_dict = {}
         for mac in macs:
@@ -133,16 +126,30 @@ class ScapyWrapper(object):
         Returns:
             dict{str->int}: ip addresses and freq
         """
-        if not self.packets:
-            return {}
-        else:
-            packets = self.packets
-        ips = []
+        if src_ip and dst_ip:
+            raise ValueError('src_ip and dst_ip should not be both specified')
+        packets = self.packets.filter(lambda p: IP in p)
+        ips = [];
         if time_slot:
             start, end = time_slot
             packets = packets.filter(lambda p: start <= p.time <= end)
-        if src_ip and dst_ip:
-            
+        if src_ip:
+            packets = packets.filter(lambda p: p[IP].src in src_ip)
+            ips = map(lambda p:p[IP].dst,packets)
+        elif dst_ip:
+            packets = packets.filter(lambda p: p[IP].dst in dst_ip)
+            ips = map(lambda p:p[IP].src,packets)
+        else:
+            ips = map(lambda p:p[IP].src,packets) + map(lambda p:p[IP].dst,packets)
+        ip_dict = {}
+        for ip in ips:
+            if ip in ip_dict:
+                ip_dict[ip] += 1
+            else:
+                ip_dict[ip] = 1
+        return ip_dict
+
+
 
 
     def stat_protocols(self, time_slot=None, src_ip=None, dst_ip=None):
