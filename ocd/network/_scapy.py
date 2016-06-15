@@ -9,6 +9,7 @@ TODO: purpose
 """
 
 from scapy.all import *
+import ocd.utils as utils
 
 class ScapyWrapper(object):
     def __init__(self):
@@ -101,13 +102,7 @@ class ScapyWrapper(object):
         if ip:
             packets = packets.filter(lambda p: IP in p and (p[IP].src in ip or p[IP].dst in ip)) 
         macs = map(lambda p: p[Ether].src, packets) + map(lambda p: p[Ether].dst, packets)
-        mac_dict = {}
-        for mac in macs:
-            if mac in mac_dict:
-                mac_dict[mac] += 1
-            else:
-                mac_dict[mac] = 1
-        return mac_dict
+        return utils.get_frq_dict(macs)
 
     def stat_ips(self, time_slot=None, src_ip=None, dst_ip=None):
         """Get a dict of ips and their freq
@@ -141,14 +136,7 @@ class ScapyWrapper(object):
             ips = map(lambda p:p[IP].src,packets)
         else:
             ips = map(lambda p:p[IP].src,packets) + map(lambda p:p[IP].dst,packets)
-        ip_dict = {}
-        for ip in ips:
-            if ip in ip_dict:
-                ip_dict[ip] += 1
-            else:
-                ip_dict[ip] = 1
-        return ip_dict
-
+        return utils.get_frq_dict(ips)
 
 
 
