@@ -7,6 +7,7 @@ Wrapper for pyshark.
 """
 
 import pyshark
+import ocd.utils as utils
 
 
 class PysharkWrapper(object):
@@ -34,19 +35,7 @@ class PysharkWrapper(object):
         Returns:
             set(str): mac addresses
         """
-        packets = self.packets
-        macs = set()
-        if time_slot:
-            start, end = time_slot
-            packets = filter(lambda p: start <= p.sniff_timestamp < end, packets)
-        if ip:
-            p_src = filter(lambda p: p.ip.src == ip, packets)
-            p_dst = filter(lambda p: p.ip.dst == ip, packets)
-        else:
-            p_src = p_dst = packets
-        macs = macs.union(map(lambda p: p.eth.src, p_src))
-        macs = macs.union(map(lambda p: p.eth.dst, p_dst))
-        return macs
+        return self.stat_macs(time_slot, ip).keys()
 
     def unique_ips(self, time_slot=None, src_ip=None, dst_ip=None):
         """Get a unique set of ips within the capture
@@ -65,22 +54,7 @@ class PysharkWrapper(object):
         Returns:
             set(str): unique ip addresses
         """
-        packets = self.packets
-        ips = set()
-        packets = filter(lambda p: 'ip' in p, packets)
-        if time_slot:
-            start, end = time_slot
-            packets = filter(lambda p: start <= p.sniff_timestamp < end, packets)
-        if src_ip:
-            packets = filter(lambda p: p.ip.src in src_ip, packets)
-            ips = ips.union(map(lambda p: p.ip.dst, packets))
-        if dst_ip:
-            packets = filter(lambda p: p.ip.dst in dst_ip, packets)
-            ips = ips.union(map(lambda p: p.ip.src, packets))
-        if not src_ip and not dst_ip:
-            ips = ips.union(map(lambda p: p.ip.dst, packets))
-            ips = ips.union(map(lambda p: p.ip.src, packets))
-        return ips
+        return self.stat_ips(time_slot, src_ip, dst_ip).keys()
 
     def unique_protocols(self, time_slot=None, src_ip=None, dst_ip=None):
         """Get a unique set of protocols within the capture
@@ -126,8 +100,8 @@ class PysharkWrapper(object):
             packets = filter(lambda p: start <= p.sniff_timestamp < end, packets)
         if ip:
             packets = filter(lambda p: 'ip' in p, packets)
-            p_src = filter(lambda p: p.ip.src == ip, packets)
-            p_dst = filter(lambda p: p.ip.dst == ip, packets)
+            p_src = filter(lambda p: p.ip.src in ip, packets)
+            p_dst = filter(lambda p: p.ip.dst in ip, packets)
         else:
             p_src = p_dst = packets
 
@@ -155,8 +129,18 @@ class PysharkWrapper(object):
         Returns:
             dict{str->int}: mac addresses and the freq it appears
         """
-        # TODO@dan
-        pass
+        packets = self.packets
+        if time_slot:
+            start, end = time_slot
+            packets = filter(lambda p: start <= p.sniff_timestamp < end, packets)
+        macs = {}
+        for p in packets:
+            if 'ip' in p:
+                if p.ip.src in ip:
+                    utils.dict_acc(macs, {p.eth.src: 1})
+                if p.ip.dst in ip:
+                    utils.dict_acc(macs, {p.eth.dst: 1})
+        return macs
 
     def stat_ips(self, time_slot=None, src_ip=None, dst_ip=None):
         """Get a dict of ips and their freq
@@ -175,8 +159,31 @@ class PysharkWrapper(object):
         Returns:
             dict{str->int}: ip addresses and freq
         """
-        # TODO@dan
-        pass
+        packets = self.packets
+        ips = {}
+        packets = filter(lambda p: 'ip' in p, packets)
+        if time_slot:
+            start, end = time_slot
+            packets = filter(lambda p: start <= p.sniff_timestamp < end, packets)
+
+        if src_ip:
+            for p in packets:
+                if 'ip' in p and p.ip.src in src_ip:
+                    utils.dict_acc(ips, {p.ip.dst: 1})
+        if dst_ip:
+            for p in packets:
+                if 'ip' in p and p.ip.dst in dst_ip:
+                    utils.dict_acc(ips, {p.ip.src: 1})
+
+        if not src_ip and not dst_ip:
+            for p in packets:
+                if 'ip' in p:
+                    utils.dict_acc(ips, {
+                        p.ip.src: 1,
+                        p.ip.dst: 1,
+                    })
+
+        return ips
 
     def stat_protocols(self, time_slot=None, src_ip=None, dst_ip=None):
         """Get a dict of protocols and freq
