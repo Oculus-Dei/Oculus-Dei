@@ -7,8 +7,8 @@ All rights reserved.
 
 TODO: purpose
 """
-
-from scapy.all import *
+from scapy.all import Ether
+import scapy.all as scp
 import ocd.utils as utils
 
 class ScapyWrapper(object):
@@ -16,10 +16,10 @@ class ScapyWrapper(object):
         self.packets = None
 
     def sniff(self, interface,timeout=5):
-        self.packets = sniff(iface=interface,timeout=timeout);
+        self.packets = scp.sniff(iface=interface,timeout=timeout);
 
     def load(self, capfile):
-        self.packets = rdpcap(capfile);
+        self.packets = scp.rdpcap(capfile);
 
     def unique_macs(self, time_slot=None, ip=None):
         """Get a unique set of MAC addresses within the capture
@@ -100,7 +100,7 @@ class ScapyWrapper(object):
             start, end = time_slot
             packets = packets.filter(lambda p: start <= p.time <= end)
         if ip:
-            packets = packets.filter(lambda p: IP in p and (p[IP].src in ip or p[IP].dst in ip)) 
+            packets = packets.filter(lambda p: p.haslayer('IP') and (p['IP'].src in ip or p['IP'].dst in ip)) 
         macs = map(lambda p: p[Ether].src, packets) + map(lambda p: p[Ether].dst, packets)
         return utils.get_frq_dict(macs)
 
@@ -123,19 +123,19 @@ class ScapyWrapper(object):
         """
         if src_ip and dst_ip:
             raise ValueError('src_ip and dst_ip should not be both specified')
-        packets = self.packets.filter(lambda p: IP in p)
+        packets = self.packets.filter(lambda p: p.haslayer('IP'))
         ips = [];
         if time_slot:
             start, end = time_slot
             packets = packets.filter(lambda p: start <= p.time <= end)
         if src_ip:
-            packets = packets.filter(lambda p: p[IP].src in src_ip)
-            ips = map(lambda p:p[IP].dst,packets)
+            packets = packets.filter(lambda p: p['IP'].src in src_ip)
+            ips = map(lambda p:p['IP'].dst,packets)
         elif dst_ip:
-            packets = packets.filter(lambda p: p[IP].dst in dst_ip)
-            ips = map(lambda p:p[IP].src,packets)
+            packets = packets.filter(lambda p: p['IP'].dst in dst_ip)
+            ips = map(lambda p:p['IP'].src,packets)
         else:
-            ips = map(lambda p:p[IP].src,packets) + map(lambda p:p[IP].dst,packets)
+            ips = map(lambda p:p['IP'].src,packets) + map(lambda p:p['IP'].dst,packets)
         return utils.get_frq_dict(ips)
 
 
