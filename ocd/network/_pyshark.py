@@ -197,8 +197,31 @@ class PysharkWrapper(object):
         Returns:
             dict{str->int}: unique protocols
         """
-        # TODO@dan
-        pass
+	packets = self.packets
+        protocols = {}
+        if time_slot:
+            start, end = time_slot
+            packets = filter(lambda p: start <= p.sniff_timestamp < end, packets)
+
+        if src_ip:
+            for p in packets:
+                if 'ip' in p and p.ip.src in src_ip:
+                    utils.dict_acc(ips, {p.ip.dst: 1})
+        if dst_ip:
+            for p in packets:
+                if 'ip' in p and p.ip.dst in dst_ip:
+                    utils.dict_acc(ips, {p.ip.src: 1})
+
+        if not src_ip and not dst_ip:
+            for p in packets:
+                if 'ip' in p:
+                    utils.dict_acc(ips, {
+                        p.ip.src: 1,
+                        p.ip.dst: 1,
+                    })
+        protocols = protocols.union(map(lambda p: p.frame_info.protocols, packets))
+        return protocols
+        # pass
 
     def stat_ports(self, time_slot=None, ip=None):
         """Get a dict of ports within the capture
@@ -211,5 +234,34 @@ class PysharkWrapper(object):
         Returns:
             dict{int->int}: unique ports
         """
-        # TODO@dan
-        pass
+	packets = self.packets
+        ports = {}
+        if time_slot:
+            start, end = time_slot
+            packets = filter(lambda p: start <= p.sniff_timestamp < end, packets)
+        if ip:
+            packets = filter(lambda p: 'ip' in p, packets)
+            p_src = filter(lambda p: p.ip.src in ip, packets)
+	    utils.dict_acc(ips, {p.ip.dst: 1})
+            p_dst = filter(lambda p: p.ip.dst in ip, packets)
+	    utils.dict_acc(ips, {p.ip.src: 1})
+        else:
+            p_src = p_dst = packets
+	    utils.dict_acc(ips, {
+                        p.ip.src: 1,
+                        p.ip.dst: 1,
+                    })
+
+        # src == ip
+        tcp_packets = filter(lambda p: 'tcp' in p, p_src)
+        udp_packets = filter(lambda p: 'udp' in p, p_src)
+        ports = ports.union(map(lambda p: int(p.tcp.srcport), tcp_packets))
+        ports = ports.union(map(lambda p: int(p.udp.srcport), udp_packets))
+        # dst == ip
+        tcp_packets = filter(lambda p: 'tcp' in p, p_dst)
+        udp_packets = filter(lambda p: 'udp' in p, p_dst)
+        ports = ports.union(map(lambda p: int(p.tcp.srcport), tcp_packets))
+        ports = ports.union(map(lambda p: int(p.udp.srcport), udp_packets))
+
+        return ports
+        # pass
