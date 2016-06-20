@@ -1,5 +1,3 @@
-
-
 # encoding: utf-8
 """
 Created by misaka-10032 (longqic@andrew.cmu.edu).
@@ -9,16 +7,18 @@ TODO: purpose
 """
 
 from scapy.all import *
+from collections import Counter
+
 
 class ScapyWrapper(object):
     def __init__(self):
         self.packets = None
 
-    def sniff(self, interface,timeout=5):
-        self.packets = sniff(iface=interface,timeout=timeout);
+    def sniff(self, interface, timeout=5):
+        self.packets = sniff(iface=interface, timeout=timeout)
 
     def load(self, capfile):
-        self.packets = rdpcap(capfile);
+        self.packets = rdpcap(capfile)
 
     def unique_macs(self, time_slot=None, ip=None):
         """Get a unique set of MAC addresses within the capture
@@ -31,7 +31,7 @@ class ScapyWrapper(object):
         Returns:
             set(str): mac addresses
         """
-        return self.stat_macs(time_slot,ip).keys()
+        return self.stat_macs(time_slot, ip).keys()
 
     def unique_ips(self, time_slot=None, src_ip=None, dst_ip=None):
         """Get a unique set of ips within the capture
@@ -50,12 +50,11 @@ class ScapyWrapper(object):
         Returns:
             set(str): unique ip addresses
         """
-        packets = self.packets.filter(lambda p: IP in p)
+        packets = self.packets.filter(lambda p: ips in p)
         ips = set();
         if time_slot:
             start, end = time_slot
             packets = packets.filter(lambda p: start <= p.time <= end)
-
 
     def unique_protocols(self, time_slot=None, src_ip=None, dst_ip=None):
         """Get a unique set of protocols within the capture
@@ -69,8 +68,7 @@ class ScapyWrapper(object):
         Returns:
             set(str): unique protocols
         """
-        # TODO@xiaolong
-        pass
+        return self.stat_protocols(time_slot, src_ip, dst_ip).keys()
 
     def unique_ports(self, time_slot=None, ip=None):
         """Get a unique set of ports within the capture
@@ -83,8 +81,7 @@ class ScapyWrapper(object):
         Returns:
             set(int): unique ports
         """
-        # TODO@xiaolong
-        pass
+        return self.stat_ports(time_slot, ip).keys()
 
     def stat_macs(self, time_slot=None, ip=None):
         """Get a dict of MAC addresses with the freq it appears
@@ -105,8 +102,8 @@ class ScapyWrapper(object):
         if time_slot:
             start, end = time_slot
             packets = packets.filter(lambda p: start <= p.time <= end)
-        if ip:
-            packets = packets.filter(lambda p: IP in p and (p[IP].src == ip or p[IP].dst == ip)) 
+            # if ip:
+            # packets = packets.filter(lambda p: IP in p and (p[IP].src == ip or p[IP].dst == ip))
         macs = map(lambda p: p[Ether].src, packets) + map(lambda p: p[Ether].dst, packets)
         mac_dict = {}
         for mac in macs:
@@ -141,9 +138,7 @@ class ScapyWrapper(object):
         if time_slot:
             start, end = time_slot
             packets = packets.filter(lambda p: start <= p.time <= end)
-        if src_ip and dst_ip:
-            
-
+            # if src_ip and dst_ip:
 
     def stat_protocols(self, time_slot=None, src_ip=None, dst_ip=None):
         """Get a dict of protocols and freq
@@ -157,8 +152,36 @@ class ScapyWrapper(object):
         Returns:
             dict{str->int}: unique protocols
         """
-        # TODO@manga
-        pass
+        if not self.packets:
+            return
+        else:
+            packets = self.packets
+        if time_slot:
+            start, end = time_slot
+            packets = packets.filter(lambda p: start <= p.time < end)
+
+        if dst_ip:
+            packets = packets.filter(lambda p: p.haslayer('IP') and p['IP'].dst in dst_ip)
+
+        if src_ip:
+            packets = packets.filter(lambda p: p.haslayer('IP') and p['IP'].src in src_ip)
+
+        protocols = packets.__repr__()
+        protocols_list = protocols.split()
+
+        packets.show()
+        protocols_dict = {}
+        for x in range(2, 6):
+            index = protocols_list[x].index(':')
+            key = protocols_list[x][:index]
+            count = protocols_list[x][index + 1:]
+            if (count[len(count) - 1] == '>'):
+                count = count[:len(count) - 2]
+            else:
+                count_int = int(count)
+            protocols_dict[key] = count_int
+
+        return protocols_dict
 
     def stat_ports(self, time_slot=None, ip=None):
         """Get a dict of ports within the capture
@@ -171,5 +194,46 @@ class ScapyWrapper(object):
         Returns:
             dict{int->int}: unique ports
         """
-        # TODO@manga
-        pass
+        if not self.packets:
+            return
+        else:
+            packets = self.packets
+        if time_slot:
+            start, end = time_slot
+            packets = packets.filter(lambda p: start <= p.time < end)
+
+        if ip:
+            packets_dst = packets.filter(lambda p: p.haslayer('IP') and p['IP'].dst in ip)
+            packets_src = packets.filter(lambda p: p.haslayer('IP') and p['IP'].src in ip)
+        else:
+            packets_dst = packets_src = packets
+
+
+        # src == ip
+        tcp_packets = packets_src.filter(lambda p: p.haslayer('TCP'))
+        udp_packets = packets_src.filter(lambda p: p.haslayer('UDP'))
+
+        tcp_packets.show()
+
+        ports_src = map(lambda p: p['TCP'].sport, tcp_packets) + map(lambda p: p['UDP'].sport, udp_packets)
+
+        print ports_src
+
+        # dst == ip
+
+        tcp_packets = packets_dst.filter(lambda p: p.haslayer('TCP'))
+        udp_packets = packets_dst.filter(lambda p: p.haslayer('UDP'))
+
+        tcp_packets.show()
+
+        ports_dst = map(lambda p: p['TCP'].sport, tcp_packets) + map(lambda p: p['UDP'].sport, udp_packets)
+
+        if ip:
+            ports = ports_dst + ports_src
+            result = dict(Counter(ports))
+        else:
+            result = dict(Counter(ports_dst))
+
+        return result
+
+
