@@ -1,0 +1,296 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>API &mdash; Oculus-Dei 0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Oculus-Dei 0.1.0 documentation" href="index.html" />
+    <link rel="prev" title="Welcome to Oculus-Dei’s documentation!" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-ocd">
+<span id="api"></span><h1>API<a class="headerlink" href="#module-ocd" title="Permalink to this headline">¶</a></h1>
+<p>This module contains interfaces for multiple sensors.</p>
+<div class="section" id="networksensor">
+<h2>NetworkSensor<a class="headerlink" href="#networksensor" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="ocd.NetworkSensor">
+<em class="property">class </em><code class="descclassname">ocd.</code><code class="descname">NetworkSensor</code><span class="sig-paren">(</span><em>backend='pyshark'</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.NetworkSensor" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="ocd.NetworkSensor.load">
+<code class="descname">load</code><span class="sig-paren">(</span><em>capfile</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.NetworkSensor.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a capture file. Backend could change accordingly.
+Args:</p>
+<blockquote>
+<div>capfile: capture file</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="ocd.NetworkSensor.sniff">
+<code class="descname">sniff</code><span class="sig-paren">(</span><em>interface</em>, <em>timeout=5</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.NetworkSensor.sniff" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sniff from an interface for a period of time</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>interface (str): the interface to sniff from, e.g. en0
+timeout (optional[int]): time to sniff</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ocd.NetworkSensor.stat_ips">
+<code class="descname">stat_ips</code><span class="sig-paren">(</span><em>time_slot=None</em>, <em>src_ip=None</em>, <em>dst_ip=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.NetworkSensor.stat_ips" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a dict of ips and their freq</p>
+<p>It can be either src ip or dst ip. If src ip is specified,
+then dst ips are returned, vice versa. If none is specified,
+all unique ips will be returned.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first docutils">
+<dt>time_slot (optional[tuple]): a tuple of two specifying the</dt>
+<dd>start and end time in the format of timestamp</dd>
+</dl>
+<p>src_ip (optional[list(str), or single str]): src ip(s)
+dst_ip (optional[list(str), or single str]): dst ip(s),</p>
+<blockquote class="last">
+<div>src_ip and dst_ip shouldn&#8217;t be both specified</div></blockquote>
+</dd>
+<dt>Returns:</dt>
+<dd>dict{str-&gt;int}: ip addresses and freq</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ocd.NetworkSensor.stat_macs">
+<code class="descname">stat_macs</code><span class="sig-paren">(</span><em>time_slot=None</em>, <em>ip=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.NetworkSensor.stat_macs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a dict of MAC addresses with the freq it appears</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first docutils">
+<dt>time_slot (optional[tuple]): a tuple of two specifying the</dt>
+<dd>start and end time in the format of timestamp</dd>
+</dl>
+<p class="last">ip (optional[list(str)]):</p>
+</dd>
+<dt>Returns:</dt>
+<dd>dict{str-&gt;int}: mac addresses and the freq it appears</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ocd.NetworkSensor.stat_ports">
+<code class="descname">stat_ports</code><span class="sig-paren">(</span><em>time_slot=None</em>, <em>ip=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.NetworkSensor.stat_ports" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a dict of ports within the capture</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first docutils">
+<dt>time_slot (optional[tuple]): a tuple of two specifying the</dt>
+<dd>start and end time in the format of timestamp</dd>
+</dl>
+<p class="last">ip (optional[list(str), or single str]): the corresponding ip(s)</p>
+</dd>
+<dt>Returns:</dt>
+<dd>dict{int-&gt;int}: unique ports</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ocd.NetworkSensor.stat_protocols">
+<code class="descname">stat_protocols</code><span class="sig-paren">(</span><em>time_slot=None</em>, <em>src_ip=None</em>, <em>dst_ip=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.NetworkSensor.stat_protocols" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a dict of protocols and freq</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first docutils">
+<dt>time_slot (optional[tuple]): a tuple of two specifying the</dt>
+<dd>start and end time in the format of timestamp</dd>
+</dl>
+<p class="last">src_ip (optional[list(str), or single str]): src ip(s)
+dst_ip (optional[list(str), or single str]): dst ip(s)</p>
+</dd>
+<dt>Returns:</dt>
+<dd>dict{str-&gt;int}: unique protocols</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ocd.NetworkSensor.unique_ips">
+<code class="descname">unique_ips</code><span class="sig-paren">(</span><em>time_slot=None</em>, <em>src_ip=None</em>, <em>dst_ip=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.NetworkSensor.unique_ips" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a unique set of ips within the capture</p>
+<p>It can be either src ip or dst ip. If src ip is specified,
+then dst ips are returned, vice versa. If none is specified,
+all unique ips will be returned.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first docutils">
+<dt>time_slot (optional[tuple]): a tuple of two specifying the</dt>
+<dd>start and end time in the format of timestamp</dd>
+</dl>
+<p>src_ip (optional[list(str), or single str]): src ip(s)
+dst_ip (optional[list(str), or single str]): dst ip(s),</p>
+<blockquote class="last">
+<div>src_ip and dst_ip shouldn&#8217;t be both specified</div></blockquote>
+</dd>
+<dt>Returns:</dt>
+<dd>set(str): unique ip addresses</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ocd.NetworkSensor.unique_macs">
+<code class="descname">unique_macs</code><span class="sig-paren">(</span><em>time_slot=None</em>, <em>ip=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.NetworkSensor.unique_macs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a unique set of MAC addresses within the capture</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first docutils">
+<dt>time_slot (optional[tuple]): a tuple of two specifying the</dt>
+<dd>start and end time in the format of timestamp</dd>
+</dl>
+<p class="last">ip (optional[list(str)]):</p>
+</dd>
+<dt>Returns:</dt>
+<dd>set(str): mac addresses</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ocd.NetworkSensor.unique_ports">
+<code class="descname">unique_ports</code><span class="sig-paren">(</span><em>time_slot=None</em>, <em>ip=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.NetworkSensor.unique_ports" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a unique set of ports within the capture</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first docutils">
+<dt>time_slot (optional[tuple]): a tuple of two specifying the</dt>
+<dd>start and end time in the format of timestamp</dd>
+</dl>
+<p class="last">ip (optional[list(str), or single str]): the corresponding ip(s)</p>
+</dd>
+<dt>Returns:</dt>
+<dd>set(int): unique ports</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ocd.NetworkSensor.unique_protocols">
+<code class="descname">unique_protocols</code><span class="sig-paren">(</span><em>time_slot=None</em>, <em>src_ip=None</em>, <em>dst_ip=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.NetworkSensor.unique_protocols" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a unique set of protocols within the capture</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first docutils">
+<dt>time_slot (optional[tuple]): a tuple of two specifying the</dt>
+<dd>start and end time in the format of timestamp</dd>
+</dl>
+<p class="last">src_ip (optional[list(str), or single str]): src ip(s)
+dst_ip (optional[list(str), or single str]): dst ip(s)</p>
+</dd>
+<dt>Returns:</dt>
+<dd>set(str): unique protocols</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="hostsensor">
+<h2>HostSensor<a class="headerlink" href="#hostsensor" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">API</a><ul>
+<li><a class="reference internal" href="#networksensor">NetworkSensor</a></li>
+<li><a class="reference internal" href="#hostsensor">HostSensor</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Welcome to Oculus-Dei&#8217;s documentation!</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/api.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Oculus-Dei.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+      |
+      <a href="_sources/api.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
