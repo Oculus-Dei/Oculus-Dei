@@ -197,8 +197,29 @@ class PysharkWrapper(object):
         Returns:
             dict{str->int}: unique protocols
         """
-        # TODO@dan
-        pass
+	packets = self.packets
+        protocols = {}
+        if time_slot:
+            start, end = time_slot
+            packets = filter(lambda p: start <= p.sniff_timestamp < end, packets)
+
+        if src_ip:
+            for p in packets:
+                if 'ip' in p and p.ip.src in src_ip:
+                    utils.dict_acc(protocols, {p.frame_info.protocols: 1})
+        if dst_ip:
+            for p in packets:
+                if 'ip' in p and p.ip.dst in dst_ip:
+                    utils.dict_acc(protocols, {p.frame_info.protocols: 1})
+
+        if not src_ip and not dst_ip:
+            for p in packets:
+                if 'ip' in p:
+                    utils.dict_acc(protocols, {
+                        p.frame_info.protocols: 1,
+                    })
+
+        return protocols
 
     def stat_ports(self, time_slot=None, ip=None):
         """Get a dict of ports within the capture
@@ -211,5 +232,31 @@ class PysharkWrapper(object):
         Returns:
             dict{int->int}: unique ports
         """
-        # TODO@dan
-        pass
+	packets = self.packets
+        ports = {}
+        if time_slot:
+            start, end = time_slot
+            packets = filter(lambda p: start <= p.sniff_timestamp < end, packets)
+        if ip:
+            packets = filter(lambda p: 'ip' in p, packets)
+            p_src = filter(lambda p: p.ip.src in ip, packets)
+            for p in p_src:    
+                if 'tcp' in p:
+                    utils.dict_acc(ports, {p.tcp.port: 1})
+                elif 'udp' in p:
+                    utils.dict_acc(ports, {p.udp.port: 1})
+            p_dst = filter(lambda p: p.ip.dst in ip, packets)
+            for p in p_dst:            
+                if 'tcp' in p:
+                    utils.dict_acc(ports, {p.tcp.port: 1})
+                elif 'udp' in p:
+                    utils.dict_acc(ports, {p.udp.port: 1})
+        else:
+            p_src = p_dst = packets
+            for p in packets:
+	        if 'tcp' in p:
+                    utils.dict_acc(ports, {p.tcp.port: 1})
+                elif 'udp' in p:
+                    utils.dict_acc(ports, {p.udp.port: 1})
+
+        return ports
