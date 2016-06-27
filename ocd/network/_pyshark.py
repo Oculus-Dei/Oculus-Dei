@@ -197,7 +197,7 @@ class PysharkWrapper(object):
         Returns:
             dict{str->int}: unique protocols
         """
-	packets = self.packets
+        packets = self.packets
         protocols = {}
         if time_slot:
             start, end = time_slot
@@ -254,7 +254,7 @@ class PysharkWrapper(object):
         else:
             p_src = p_dst = packets
             for p in packets:
-	        if 'tcp' in p:
+                if 'tcp' in p:
                     utils.dict_acc(ports, {p.tcp.port: 1})
                 elif 'udp' in p:
                     utils.dict_acc(ports, {p.udp.port: 1})

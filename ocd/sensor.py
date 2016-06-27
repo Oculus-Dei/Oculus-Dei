@@ -1,26 +1,25 @@
 # encoding: utf-8
 """
 Created by misaka-10032 (longqic@andrew.cmu.edu).
-All rights reserved.
 
-TODO: purpose
+Main API for sensors
 """
-
-__author__ = 'misaka-10032 (longqic@andrew.cmu.edu)'
 
 
 class Sensor(object):
-    def __init__(self, backend):
+    def __init__(self):
         pass
 
 
 class NetworkSensor(Sensor):
+    """ Network sensor for packet analysis"""
+
     def __init__(self, backend='pyshark'):
-        """
+        """ Init a network sensor
         Args:
             backend (str): either 'pyshark' or 'scapy'
         """
-        # TODO: add cap file in constructor
+        super(NetworkSensor, self).__init__()
         if backend == 'pyshark':
             from network._pyshark import PysharkWrapper
             self.wrapper = PysharkWrapper()
@@ -200,23 +199,110 @@ class NetworkSensor(Sensor):
 
 
 class HostSensor(Sensor):
-    def unique_logins(self, time_slot):
-        pass
+    def __init__(self, backend='ossec'):
+        """ Init a host-based sensor
+        Args:
+            backend (str): either ossec, windows, linux or mac
+        """
+        super(Sensor, self).__init__()
+        if backend == 'ossec':
+            from ocd.host._ossec import OssecBackend
+            self.backend = OssecBackend()
+        elif backend == 'windows':
+            from ocd.host._windows import WindowsBackend
+            self.backend = WindowsBackend()
+        elif backend == 'linux' or backend == 'mac':
+            from ocd.host._linux import LinuxBackend
+            self.backend = LinuxBackend()
+        else:
+            raise NotImplementedError('Backend not supported!')
 
-    def unique_logouts(self, time_slot):
-        pass
+    def load(self, **kwargs):
+        """ Load the system log
 
-    def unique_authfailures(self, time_slot):
-        pass
+        It loads log(s) from default location. If they are not in the
+        default location, specify in **kwargs.
 
-    def stat_logins(self, time_slot):
-        pass
+        TODO: document kwargs available for different backends
 
-    def stat_logouts(self, time_slot):
-        pass
+        Args:
+            **kwargs: specifies custom config for sys logs
+        """
+        self.backend.load(**kwargs)
 
-    def stat_authfailures(self, time_slot):
-        pass
+    def unique_logins(self, time_slot=None):
+        """ Get the unique users logged in within a period
+        Args:
+            time_slot (optional[tuple]): a tuple of two specifying the
+                start and end time in the format of timestamp
+        Returns:
+            set(str): unique set of users
+        """
+        return self.stat_logins(time_slot).keys()
+
+    def unique_logouts(self, time_slot=None):
+        """ Get the unique users logged in within a period
+        Args:
+            time_slot (optional[tuple]): a tuple of two specifying the
+                start and end time in the format of timestamp
+        Returns:
+            set(str): unique set of users
+        """
+        return self.stat_logouts(time_slot).keys()
+
+    def unique_authfailures(self, time_slot=None):
+        """ Get the unique users failed in logging in within a period
+        Args:
+            time_slot (optional[tuple]): a tuple of two specifying the
+                start and end time in the format of timestamp
+        Returns:
+            set(str): unique set of users
+        """
+        return self.stat_authfailures(time_slot).keys()
+
+    def stat_logins(self, time_slot=None):
+        """ Get a dict of users and their login freq
+        Args:
+            time_slot (optional[tuple]): a tuple of two specifying the
+                start and end time in the format of timestamp
+        Returns:
+            dict(str->int): user vs how many times he successful logs in
+        """
+        return self.backend.stat_logins(time_slot)
+
+    def stat_logouts(self, time_slot=None):
+        """ Get a dict of users and their logout freq
+        Args:
+            time_slot (optional[tuple]): a tuple of two specifying the
+                start and end time in the format of timestamp
+        Returns:
+            dict(str->int): user vs how many times he logs out
+        """
+        return self.backend.stat_logouts(time_slot)
+
+    def stat_authfailures(self, time_slot=None):
+        """ Get a dict of users and their freq of authentication failure
+        Args:
+            time_slot (optional[tuple]): a tuple of two specifying the
+                start and end time in the format of timestamp
+        Returns:
+            dict(str->int): user vs how many times he failed to log in
+        """
+        return self.backend.stat_authfailures(time_slot)
+
+    def user_activities(self, user, time_slot=None):
+        """ Get a list of user activities within the time slot
+        Args:
+            user (str): the username
+            time_slot (optional[tuple]): a tuple of two specifying the
+                start and end time in the format of timestamp
+        Returns:
+            list(dict): a list of user activities, each item is in
+                the format of {'activity': '...', 'ip': '...', 'time': '...'},
+                where activity can be 'login', 'logout', 'authfailure',
+                and time is an instance of datetime.datetime
+        """
+        return self.backend.user_activities(user, time_slot)
 
     def cpu_usage(self):
         pass
