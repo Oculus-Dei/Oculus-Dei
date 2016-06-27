@@ -9,9 +9,12 @@ NetworkSensor
 -------------
 
 .. autoclass:: NetworkSensor
-   .. automethod:: __init__
    :members:
    :inherited-members:
 
 HostSensor
 ----------
+
+.. autoclass:: HostSensor
+   :members:
+   :inherited-members:

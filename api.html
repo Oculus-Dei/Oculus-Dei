@@ -45,9 +45,336 @@
 <p>This module contains interfaces for multiple sensors.</p>
 <div class="section" id="networksensor">
 <h2>NetworkSensor<a class="headerlink" href="#networksensor" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="ocd.NetworkSensor">
+<em class="property">class </em><code class="descclassname">ocd.</code><code class="descname">NetworkSensor</code><span class="sig-paren">(</span><em>backend='pyshark'</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.NetworkSensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Network sensor for packet analysis</p>
+<p>Init a network sensor</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>backend (str): either &#8216;pyshark&#8217; or &#8216;scapy&#8217;</dd>
+</dl>
+<dl class="method">
+<dt id="ocd.NetworkSensor.load">
+<code class="descname">load</code><span class="sig-paren">(</span><em>capfile</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.NetworkSensor.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a capture file. Backend could change accordingly.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>capfile: capture file</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ocd.NetworkSensor.sniff">
+<code class="descname">sniff</code><span class="sig-paren">(</span><em>interface</em>, <em>timeout=5</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.NetworkSensor.sniff" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sniff from an interface for a period of time</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">interface (str): the interface to sniff from, e.g. en0</p>
+<p class="last">timeout (optional[int]): time to sniff</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ocd.NetworkSensor.stat_ips">
+<code class="descname">stat_ips</code><span class="sig-paren">(</span><em>time_slot=None</em>, <em>src_ip=None</em>, <em>dst_ip=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.NetworkSensor.stat_ips" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a dict of ips and their freq</p>
+<p>It can be either src ip or dst ip. If src ip is specified,
+then dst ips are returned, vice versa. If none is specified,
+all unique ips will be returned.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first docutils">
+<dt>time_slot (optional[tuple]): a tuple of two specifying the</dt>
+<dd>start and end time in the format of timestamp.</dd>
+</dl>
+<p>src_ip (optional[list(str), or single str]): src ip(s).</p>
+<dl class="last docutils">
+<dt>dst_ip (optional[list(str), or single str]): dst ip(s),</dt>
+<dd>src_ip and dst_ip shouldn&#8217;t be both specified.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>dict{str-&gt;int}: ip addresses and freq.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ocd.NetworkSensor.stat_macs">
+<code class="descname">stat_macs</code><span class="sig-paren">(</span><em>time_slot=None</em>, <em>ip=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.NetworkSensor.stat_macs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a dict of MAC addresses with the freq it appears</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first docutils">
+<dt>time_slot (optional[tuple]): a tuple of two specifying the</dt>
+<dd>start and end time in the format of timestamp</dd>
+</dl>
+<p class="last">ip (optional[list(str)]):</p>
+</dd>
+<dt>Returns:</dt>
+<dd>dict{str-&gt;int}: mac addresses and the freq it appears</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ocd.NetworkSensor.stat_ports">
+<code class="descname">stat_ports</code><span class="sig-paren">(</span><em>time_slot=None</em>, <em>ip=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.NetworkSensor.stat_ports" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a dict of ports within the capture</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first docutils">
+<dt>time_slot (optional[tuple]): a tuple of two specifying the</dt>
+<dd>start and end time in the format of timestamp</dd>
+</dl>
+<p class="last">ip (optional[list(str), or single str]): the corresponding ip(s)</p>
+</dd>
+<dt>Returns:</dt>
+<dd>dict{int-&gt;int}: unique ports</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ocd.NetworkSensor.stat_protocols">
+<code class="descname">stat_protocols</code><span class="sig-paren">(</span><em>time_slot=None</em>, <em>src_ip=None</em>, <em>dst_ip=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.NetworkSensor.stat_protocols" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a dict of protocols and freq</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first docutils">
+<dt>time_slot (optional[tuple]): a tuple of two specifying the</dt>
+<dd>start and end time in the format of timestamp</dd>
+</dl>
+<p>src_ip (optional[list(str), or single str]): src ip(s)</p>
+<p class="last">dst_ip (optional[list(str), or single str]): dst ip(s)</p>
+</dd>
+<dt>Returns:</dt>
+<dd>dict{str-&gt;int}: unique protocols</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ocd.NetworkSensor.unique_ips">
+<code class="descname">unique_ips</code><span class="sig-paren">(</span><em>time_slot=None</em>, <em>src_ip=None</em>, <em>dst_ip=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.NetworkSensor.unique_ips" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a unique set of ips within the capture</p>
+<p>It can be either src ip or dst ip. If src ip is specified,
+then dst ips are returned, vice versa. If none is specified,
+all unique ips will be returned.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first docutils">
+<dt>time_slot (optional[tuple]): a tuple of two specifying the</dt>
+<dd>start and end time in the format of timestamp</dd>
+</dl>
+<p>src_ip (optional[list(str), or single str]): src ip(s)</p>
+<dl class="last docutils">
+<dt>dst_ip (optional[list(str), or single str]): dst ip(s),</dt>
+<dd>src_ip and dst_ip shouldn&#8217;t be both specified</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>set(str): unique ip addresses</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ocd.NetworkSensor.unique_macs">
+<code class="descname">unique_macs</code><span class="sig-paren">(</span><em>time_slot=None</em>, <em>ip=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.NetworkSensor.unique_macs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a unique set of MAC addresses within the capture</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first docutils">
+<dt>time_slot (optional[tuple]): a tuple of two specifying the</dt>
+<dd>start and end time in the format of timestamp</dd>
+</dl>
+<p class="last">ip (optional[list(str)]):</p>
+</dd>
+<dt>Returns:</dt>
+<dd>set(str): mac addresses</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ocd.NetworkSensor.unique_ports">
+<code class="descname">unique_ports</code><span class="sig-paren">(</span><em>time_slot=None</em>, <em>ip=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.NetworkSensor.unique_ports" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a unique set of ports within the capture</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first docutils">
+<dt>time_slot (optional[tuple]): a tuple of two specifying the</dt>
+<dd>start and end time in the format of timestamp</dd>
+</dl>
+<p class="last">ip (optional[list(str), or single str]): the corresponding ip(s)</p>
+</dd>
+<dt>Returns:</dt>
+<dd>set(int): unique ports</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ocd.NetworkSensor.unique_protocols">
+<code class="descname">unique_protocols</code><span class="sig-paren">(</span><em>time_slot=None</em>, <em>src_ip=None</em>, <em>dst_ip=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.NetworkSensor.unique_protocols" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a unique set of protocols within the capture</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first docutils">
+<dt>time_slot (optional[tuple]): a tuple of two specifying the</dt>
+<dd>start and end time in the format of timestamp</dd>
+</dl>
+<p>src_ip (optional[list(str), or single str]): src ip(s)</p>
+<p class="last">dst_ip (optional[list(str), or single str]): dst ip(s)</p>
+</dd>
+<dt>Returns:</dt>
+<dd>set(str): unique protocols</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 <div class="section" id="hostsensor">
 <h2>HostSensor<a class="headerlink" href="#hostsensor" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="ocd.HostSensor">
+<em class="property">class </em><code class="descclassname">ocd.</code><code class="descname">HostSensor</code><span class="sig-paren">(</span><em>backend='ossec'</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.HostSensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Init a host-based sensor</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>backend (str): either ossec, windows, linux or mac</dd>
+</dl>
+<dl class="method">
+<dt id="ocd.HostSensor.load">
+<code class="descname">load</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.HostSensor.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load the system log</p>
+<p>It loads log(s) from default location. If they are not in the
+default location, specify in <a href="#id1"><span class="problematic" id="id2">**</span></a>kwargs.</p>
+<p>TODO: document kwargs available for different backends</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><a href="#id3"><span class="problematic" id="id4">**</span></a>kwargs: specifies custom config for sys logs</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ocd.HostSensor.stat_authfailures">
+<code class="descname">stat_authfailures</code><span class="sig-paren">(</span><em>time_slot=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.HostSensor.stat_authfailures" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a dict of users and their freq of authentication failure</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>time_slot (optional[tuple]): a tuple of two specifying the</dt>
+<dd>start and end time in the format of timestamp</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>dict(str-&gt;int): user vs how many times he failed to log in</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ocd.HostSensor.stat_logins">
+<code class="descname">stat_logins</code><span class="sig-paren">(</span><em>time_slot=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.HostSensor.stat_logins" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a dict of users and their login freq</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>time_slot (optional[tuple]): a tuple of two specifying the</dt>
+<dd>start and end time in the format of timestamp</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>dict(str-&gt;int): user vs how many times he successful logs in</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ocd.HostSensor.stat_logouts">
+<code class="descname">stat_logouts</code><span class="sig-paren">(</span><em>time_slot=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.HostSensor.stat_logouts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a dict of users and their logout freq</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>time_slot (optional[tuple]): a tuple of two specifying the</dt>
+<dd>start and end time in the format of timestamp</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>dict(str-&gt;int): user vs how many times he logs out</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ocd.HostSensor.unique_authfailures">
+<code class="descname">unique_authfailures</code><span class="sig-paren">(</span><em>time_slot=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.HostSensor.unique_authfailures" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the unique users failed in logging in within a period</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>time_slot (optional[tuple]): a tuple of two specifying the</dt>
+<dd>start and end time in the format of timestamp</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>set(str): unique set of users</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ocd.HostSensor.unique_logins">
+<code class="descname">unique_logins</code><span class="sig-paren">(</span><em>time_slot=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.HostSensor.unique_logins" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the unique users logged in within a period</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>time_slot (optional[tuple]): a tuple of two specifying the</dt>
+<dd>start and end time in the format of timestamp</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>set(str): unique set of users</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ocd.HostSensor.unique_logouts">
+<code class="descname">unique_logouts</code><span class="sig-paren">(</span><em>time_slot=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.HostSensor.unique_logouts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the unique users logged in within a period</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>time_slot (optional[tuple]): a tuple of two specifying the</dt>
+<dd>start and end time in the format of timestamp</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>set(str): unique set of users</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ocd.HostSensor.user_activities">
+<code class="descname">user_activities</code><span class="sig-paren">(</span><em>user</em>, <em>time_slot=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.HostSensor.user_activities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a list of user activities within the time slot</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">user (str): the username</p>
+<dl class="last docutils">
+<dt>time_slot (optional[tuple]): a tuple of two specifying the</dt>
+<dd>start and end time in the format of timestamp</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt>list(dict): a list of user activities, each item is in</dt>
+<dd>the format of {&#8216;activity&#8217;: &#8216;...&#8217;, &#8216;ip&#8217;: &#8216;...&#8217;, &#8216;time&#8217;: &#8216;...&#8217;},
+where activity can be &#8216;login&#8217;, &#8216;logout&#8217;, &#8216;authfailure&#8217;,
+and time is an instance of datetime.datetime</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 </div>
 
