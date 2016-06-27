@@ -12,10 +12,11 @@ class Sensor(object):
 
 
 class NetworkSensor(Sensor):
-    """ Network sensor for packet analysis"""
+    """ Network sensor for packet analysis """
 
     def __init__(self, backend='pyshark'):
         """ Init a network sensor
+
         Args:
             backend (str): either 'pyshark' or 'scapy'
         """
@@ -34,13 +35,14 @@ class NetworkSensor(Sensor):
 
         Args:
             interface (str): the interface to sniff from, e.g. en0
+
             timeout (optional[int]): time to sniff
-        :return:
         """
         self.wrapper.sniff(interface, timeout)
 
     def load(self, capfile):
         """Load a capture file. Backend could change accordingly.
+
         Args:
             capfile: capture file
         """
@@ -53,6 +55,7 @@ class NetworkSensor(Sensor):
         Args:
             time_slot (optional[tuple]): a tuple of two specifying the
                 start and end time in the format of timestamp
+
             ip (optional[list(str)]):
 
         Returns:
@@ -72,7 +75,9 @@ class NetworkSensor(Sensor):
         Args:
             time_slot (optional[tuple]): a tuple of two specifying the
                 start and end time in the format of timestamp
+
             src_ip (optional[list(str), or single str]): src ip(s)
+
             dst_ip (optional[list(str), or single str]): dst ip(s),
                 src_ip and dst_ip shouldn't be both specified
 
@@ -93,7 +98,9 @@ class NetworkSensor(Sensor):
         Args:
             time_slot (optional[tuple]): a tuple of two specifying the
                 start and end time in the format of timestamp
+
             src_ip (optional[list(str), or single str]): src ip(s)
+
             dst_ip (optional[list(str), or single str]): dst ip(s)
 
         Returns:
@@ -113,6 +120,7 @@ class NetworkSensor(Sensor):
         Args:
             time_slot (optional[tuple]): a tuple of two specifying the
                 start and end time in the format of timestamp
+
             ip (optional[list(str), or single str]): the corresponding ip(s)
 
         Returns:
@@ -128,6 +136,7 @@ class NetworkSensor(Sensor):
         Args:
             time_slot (optional[tuple]): a tuple of two specifying the
                 start and end time in the format of timestamp
+
             ip (optional[list(str)]):
 
         Returns:
@@ -146,13 +155,15 @@ class NetworkSensor(Sensor):
 
         Args:
             time_slot (optional[tuple]): a tuple of two specifying the
-                start and end time in the format of timestamp
-            src_ip (optional[list(str), or single str]): src ip(s)
+                start and end time in the format of timestamp.
+
+            src_ip (optional[list(str), or single str]): src ip(s).
+
             dst_ip (optional[list(str), or single str]): dst ip(s),
-                src_ip and dst_ip shouldn't be both specified
+                src_ip and dst_ip shouldn't be both specified.
 
         Returns:
-            dict{str->int}: ip addresses and freq
+            dict{str->int}: ip addresses and freq.
         """
         if src_ip is not None and dst_ip is not None:
             raise Exception("src_ip and dst_ip shouldn't be both specified!")
@@ -168,7 +179,9 @@ class NetworkSensor(Sensor):
         Args:
             time_slot (optional[tuple]): a tuple of two specifying the
                 start and end time in the format of timestamp
+
             src_ip (optional[list(str), or single str]): src ip(s)
+
             dst_ip (optional[list(str), or single str]): dst ip(s)
 
         Returns:
@@ -188,6 +201,7 @@ class NetworkSensor(Sensor):
         Args:
             time_slot (optional[tuple]): a tuple of two specifying the
                 start and end time in the format of timestamp
+
             ip (optional[list(str), or single str]): the corresponding ip(s)
 
         Returns:
@@ -201,6 +215,7 @@ class NetworkSensor(Sensor):
 class HostSensor(Sensor):
     def __init__(self, backend='ossec'):
         """ Init a host-based sensor
+
         Args:
             backend (str): either ossec, windows, linux or mac
         """
@@ -232,9 +247,11 @@ class HostSensor(Sensor):
 
     def unique_logins(self, time_slot=None):
         """ Get the unique users logged in within a period
+
         Args:
             time_slot (optional[tuple]): a tuple of two specifying the
                 start and end time in the format of timestamp
+
         Returns:
             set(str): unique set of users
         """
@@ -242,9 +259,11 @@ class HostSensor(Sensor):
 
     def unique_logouts(self, time_slot=None):
         """ Get the unique users logged in within a period
+
         Args:
             time_slot (optional[tuple]): a tuple of two specifying the
                 start and end time in the format of timestamp
+
         Returns:
             set(str): unique set of users
         """
@@ -252,9 +271,11 @@ class HostSensor(Sensor):
 
     def unique_authfailures(self, time_slot=None):
         """ Get the unique users failed in logging in within a period
+
         Args:
             time_slot (optional[tuple]): a tuple of two specifying the
                 start and end time in the format of timestamp
+
         Returns:
             set(str): unique set of users
         """
@@ -262,9 +283,11 @@ class HostSensor(Sensor):
 
     def stat_logins(self, time_slot=None):
         """ Get a dict of users and their login freq
+
         Args:
             time_slot (optional[tuple]): a tuple of two specifying the
                 start and end time in the format of timestamp
+
         Returns:
             dict(str->int): user vs how many times he successful logs in
         """
@@ -272,9 +295,11 @@ class HostSensor(Sensor):
 
     def stat_logouts(self, time_slot=None):
         """ Get a dict of users and their logout freq
+
         Args:
             time_slot (optional[tuple]): a tuple of two specifying the
                 start and end time in the format of timestamp
+
         Returns:
             dict(str->int): user vs how many times he logs out
         """
@@ -282,9 +307,11 @@ class HostSensor(Sensor):
 
     def stat_authfailures(self, time_slot=None):
         """ Get a dict of users and their freq of authentication failure
+
         Args:
             time_slot (optional[tuple]): a tuple of two specifying the
                 start and end time in the format of timestamp
+
         Returns:
             dict(str->int): user vs how many times he failed to log in
         """
@@ -292,10 +319,13 @@ class HostSensor(Sensor):
 
     def user_activities(self, user, time_slot=None):
         """ Get a list of user activities within the time slot
+
         Args:
             user (str): the username
+
             time_slot (optional[tuple]): a tuple of two specifying the
                 start and end time in the format of timestamp
+
         Returns:
             list(dict): a list of user activities, each item is in
                 the format of {'activity': '...', 'ip': '...', 'time': '...'},

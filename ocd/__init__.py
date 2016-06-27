@@ -6,4 +6,4 @@ All rights reserved.
 TODO: purpose
 """
 
-from sensor import NetworkSensor
+from sensor import NetworkSensor, HostSensor
