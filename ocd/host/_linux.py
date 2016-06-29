@@ -5,91 +5,145 @@ Created by misaka-10032 (longqic@andrew.cmu.edu).
 Linux backend for host-based sensor
 """
 
+import warnings
+from datetime import datetime
+from ocd.utils import pcall, identity, dict_acc
+
 
 class LinuxBackend(object):
+    def __init__(self):
+        self.last = []
+        self.lastb = []
+        self.load()
+
     def load(self, **kwargs):
         """ Load the system log
 
         It loads log(s) from default location. If they are not in the
         default location, specify in **kwargs.
 
-        TODO: document kwargs necessary for log location
-
         Args:
-            **kwargs: specifies custom config for sys logs
+            **kwargs: specifies custom config for sys logs.
+                None for this backend.
         """
-        pass
+        def parse(line):
+            items = filter(identity, map(lambda x: x.strip(), line.split('  ')))
+            tfmt = '%a %b %d %H:%M:%S %Y'
+            tin, tout = (items[3].split(' - ')+[''])[:2]
+            tin = datetime.strptime(tin, tfmt)
+            if tout:
+                p = tout.find('(')
+                if p >= 0:
+                    tout = tout[:p]
+                tout = tout.strip()
+                tout = datetime.strptime(tout, tfmt)
+            else:
+                tout = None
+            return {
+                'user':     items[0],
+                'terminal': items[1],
+                'ip':       items[2],
+                'time_in':  tin,
+                'time_out': tout,
+            }
 
-    def unique_logins(self, time_slot=None):
-        """ Get the unique users logged in within a period
-        Args:
-            time_slot (optional[tuple]): a tuple of two specifying the
-                start and end time in the format of timestamp
-        Returns:
-            set(str): unique set of users
-        """
-        pass
+        try:
+            last, bad = pcall('last -Fi')
+            if bad:
+                raise OSError()
+            else:
+                self.last = [parse(l) for l in last[:-1]]
+        except OSError:
+            raise Exception('`last -Fi` fails. Backend not supported.')
 
-    def unique_logouts(self, time_slot=None):
-        """ Get the unique users logged in within a period
-        Args:
-            time_slot (optional[tuple]): a tuple of two specifying the
-                start and end time in the format of timestamp
-        Returns:
-            set(str): unique set of users
-        """
-        pass
+        try:
+            lastb, bad = pcall('lastb -Fi')
+            if bad:
+                warnings.warn('`lastb -Fi` fails, which requires sudo permission.'
+                              'Continue if you don\'t need authfailures')
+            else:
+                self.lastb = [parse(l) for l in lastb[:-1]]
+        except OSError:
+            raise Exception('`lastb -Fi` fails. Backend not supported.')
 
-    def unique_authfailures(self, time_slot=None):
-        """ Get the unique users failed in logging in within a period
-        Args:
-            time_slot (optional[tuple]): a tuple of two specifying the
-                start and end time in the format of timestamp
-        Returns:
-            set(str): unique set of users
-        """
-        pass
-
-    def stat_logins(self, time_slot=None):
+    def stat_logins(self, time_slot):
         """ Get a dict of users and their login freq
         Args:
-            time_slot (optional[tuple]): a tuple of two specifying the
-                start and end time in the format of timestamp
+            time_slot (tuple(datetime)): a tuple of two
+                specifying the start and end time as datetime
         Returns:
             dict(str->int): user vs how many times he successful logs in
         """
-        pass
+        r = {}
+        start, end = time_slot
+        for login in self.last:
+            if start <= login['time_in'] < end:
+                dict_acc(r, {login['user']: 1})
+        return r
 
-    def stat_logouts(self, time_slot=None):
+    def stat_logouts(self, time_slot):
         """ Get a dict of users and their logout freq
         Args:
-            time_slot (optional[tuple]): a tuple of two specifying the
-                start and end time in the format of timestamp
+            time_slot (tuple(datetime)): a tuple of two
+                specifying the start and end time as datetime
         Returns:
             dict(str->int): user vs how many times he logs out
         """
-        pass
+        r = {}
+        start, end = time_slot
+        for login in self.last:
+            if login['time_out'] and start <= login['time_out'] < end:
+                dict_acc(r, {login['user']: 1})
+        return r
 
-    def stat_authfailures(self, time_slot=None):
+    def stat_authfailures(self, time_slot):
         """ Get a dict of users and their freq of authentication failure
         Args:
-            time_slot (optional[tuple]): a tuple of two specifying the
-                start and end time in the format of timestamp
+            time_slot (tuple(datetime)): a tuple of two
+                specifying the start and end time as datetime
         Returns:
             dict(str->int): user vs how many times he failed to log in
         """
-        pass
+        r = {}
+        start, end = time_slot
+        for authfailure in self.lastb:
+            if start <= authfailure['time_in'] < end:
+                dict_acc(r, {authfailure['user']: 1})
+        return r
 
-    def user_activities(self, user, time_slot=None):
+    def user_activities(self, user, time_slot):
         """ Get a list of user activities within the time slot
         Args:
             user (str): the username
-            time_slot (optional[tuple]): a tuple of two specifying the
-                start and end time in the format of timestamp
+            time_slot (optional[tuple(datetime)]): a tuple of two
+                specifying the start and end time as datetime
         Returns:
             list(dict): a list of user activities, each item is in
-                the format of {'activity': '...', 'time': '...'},
+                the format of {'activity': '...', 'ip': '...', 'time': '...'},
                 where activity can be 'login', 'logout', 'authfailure',
-                and time is an instance of datetime.datetime
+                and time is an instance of datetime.datetime.
+                Results will be sorted by time.
         """
-        pass
+        activities = []
+        start, end = time_slot
+        for login in self.last:
+            if start <= login['time_in'] < end:
+                activities.append({
+                    'activity': 'login',
+                    'ip': login['ip'],
+                    'time': login['time_in']
+                })
+            if login['time_out'] and start <= login['time_out'] < end:
+                activities.append({
+                    'activity': 'logout',
+                    'ip': login['ip'],
+                    'time': login['time_out']
+                })
+        for authfailure in self.lastb:
+            if start <= authfailure['time_in'] < end:
+                activities.append({
+                    'activity': 'authfailure',
+                    'ip': authfailure['ip'],
+                    'time': authfailure['time_in']
+                })
+        return sorted(activities, key=lambda a: a['time'])

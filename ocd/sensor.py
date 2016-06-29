@@ -5,6 +5,10 @@ Created by misaka-10032 (longqic@andrew.cmu.edu).
 Main API for sensors
 """
 
+import sys
+from datetime import datetime
+from utils import solid_timeslot, timeslot_with_timestamps
+
 
 class Sensor(object):
     def __init__(self):
@@ -46,24 +50,22 @@ class NetworkSensor(Sensor):
         Args:
             capfile: capture file
         """
-        # TODO: check file type
         self.wrapper.load(capfile)
 
     def unique_macs(self, time_slot=None, ip=None):
         """Get a unique set of MAC addresses within the capture
 
         Args:
-            time_slot (optional[tuple]): a tuple of two specifying the
-                start and end time in the format of timestamp
+            time_slot (optional[tuple(datetime)]): a tuple of two
+                specifying the start and end time as datetime
 
             ip (optional[list(str)]):
 
         Returns:
-            set(str): mac addresses
+            list(str): mac addresses
         """
-        if ip is not None and not isinstance(ip, list):
-            ip = [ip]
-        return self.wrapper.unique_macs(time_slot, ip)
+
+        return self.stat_macs(time_slot, ip).keys()
 
     def unique_ips(self, time_slot=None, src_ip=None, dst_ip=None):
         """Get a unique set of ips within the capture
@@ -73,8 +75,8 @@ class NetworkSensor(Sensor):
         all unique ips will be returned.
 
         Args:
-            time_slot (optional[tuple]): a tuple of two specifying the
-                start and end time in the format of timestamp
+            time_slot (optional[tuple(datetime)]): a tuple of two
+                specifying the start and end time as datetime
 
             src_ip (optional[list(str), or single str]): src ip(s)
 
@@ -82,60 +84,46 @@ class NetworkSensor(Sensor):
                 src_ip and dst_ip shouldn't be both specified
 
         Returns:
-            set(str): unique ip addresses
+            list(str): unique ip addresses
         """
-        if src_ip is not None and dst_ip is not None:
-            raise Exception("src_ip and dst_ip shouldn't be both specified!")
-        if src_ip is not None and not isinstance(src_ip, list):
-            src_ip = [src_ip]
-        if dst_ip is not None and not isinstance(dst_ip, list):
-            dst_ip = [dst_ip]
-        return self.wrapper.unique_ips(time_slot, src_ip, dst_ip)
+        return self.stat_ips(time_slot, src_ip, dst_ip).keys()
 
     def unique_protocols(self, time_slot=None, src_ip=None, dst_ip=None):
         """Get a unique set of protocols within the capture
 
         Args:
-            time_slot (optional[tuple]): a tuple of two specifying the
-                start and end time in the format of timestamp
+            time_slot (optional[tuple(datetime)]): a tuple of two
+                specifying the start and end time as datetime
 
             src_ip (optional[list(str), or single str]): src ip(s)
 
             dst_ip (optional[list(str), or single str]): dst ip(s)
 
         Returns:
-            set(str): unique protocols
+            list(str): unique protocols
         """
-        if src_ip is not None and dst_ip is not None:
-            raise Exception("src_ip and dst_ip shouldn't be both specified!")
-        if src_ip is not None and not isinstance(src_ip, list):
-            src_ip = [src_ip]
-        if dst_ip is not None and not isinstance(dst_ip, list):
-            dst_ip = [dst_ip]
-        return self.wrapper.unique_protocols(time_slot, src_ip, dst_ip)
+        return self.stat_protocols(time_slot, src_ip, dst_ip).keys()
 
     def unique_ports(self, time_slot=None, ip=None):
         """Get a unique set of ports within the capture
 
         Args:
-            time_slot (optional[tuple]): a tuple of two specifying the
-                start and end time in the format of timestamp
+            time_slot (optional[tuple(datetime)]): a tuple of two
+                specifying the start and end time as datetime
 
             ip (optional[list(str), or single str]): the corresponding ip(s)
 
         Returns:
             set(int): unique ports
         """
-        if ip is not None and not isinstance(ip, list):
-            ip = [ip]
-        return self.wrapper.unique_ports(time_slot, ip)
+        return self.stat_ports(time_slot, ip).keys()
 
     def stat_macs(self, time_slot=None, ip=None):
         """Get a dict of MAC addresses with the freq it appears
 
         Args:
-            time_slot (optional[tuple]): a tuple of two specifying the
-                start and end time in the format of timestamp
+            time_slot (optional[tuple(datetime)]): a tuple of two
+                specifying the start and end time as datetime
 
             ip (optional[list(str)]):
 
@@ -144,7 +132,7 @@ class NetworkSensor(Sensor):
         """
         if ip is not None and not isinstance(ip, list):
             ip = [ip]
-        return self.wrapper.stat_macs(time_slot, ip)
+        return self.wrapper.stat_macs(timeslot_with_timestamps(time_slot), ip)
 
     def stat_ips(self, time_slot=None, src_ip=None, dst_ip=None):
         """Get a dict of ips and their freq
@@ -154,8 +142,8 @@ class NetworkSensor(Sensor):
         all unique ips will be returned.
 
         Args:
-            time_slot (optional[tuple]): a tuple of two specifying the
-                start and end time in the format of timestamp.
+            time_slot (optional[tuple(datetime)]): a tuple of two
+                specifying the start and end time as datetime
 
             src_ip (optional[list(str), or single str]): src ip(s).
 
@@ -171,7 +159,8 @@ class NetworkSensor(Sensor):
             src_ip = [src_ip]
         if dst_ip is not None and not isinstance(dst_ip, list):
             dst_ip = [dst_ip]
-        return self.wrapper.stat_ips(time_slot, src_ip, dst_ip)
+        return self.wrapper.stat_ips(timeslot_with_timestamps(time_slot),
+                                     src_ip, dst_ip)
 
     def stat_protocols(self, time_slot=None, src_ip=None, dst_ip=None):
         """Get a dict of protocols and freq
@@ -193,14 +182,15 @@ class NetworkSensor(Sensor):
             src_ip = [src_ip]
         if dst_ip is not None and not isinstance(dst_ip, list):
             dst_ip = [dst_ip]
-        return self.wrapper.stat_protocols(time_slot, src_ip, dst_ip)
+        return self.wrapper.stat_protocols(timeslot_with_timestamps(time_slot),
+                                           src_ip, dst_ip)
 
     def stat_ports(self, time_slot=None, ip=None):
         """Get a dict of ports within the capture
 
         Args:
-            time_slot (optional[tuple]): a tuple of two specifying the
-                start and end time in the format of timestamp
+            time_slot (optional[tuple(datetime)]): a tuple of two
+                specifying the start and end time as datetime
 
             ip (optional[list(str), or single str]): the corresponding ip(s)
 
@@ -209,26 +199,33 @@ class NetworkSensor(Sensor):
         """
         if ip is not None and not isinstance(ip, list):
             ip = [ip]
-        return self.wrapper.stat_ports(time_slot, ip)
+        return self.wrapper.stat_ports(timeslot_with_timestamps(time_slot), ip)
 
 
 class HostSensor(Sensor):
-    def __init__(self, backend='ossec'):
+    def __init__(self, backend='sys'):
         """ Init a host-based sensor
 
         Args:
-            backend (str): either ossec, windows, linux or mac
+            backend (str): either 'sys' or 'ossec'
         """
         super(Sensor, self).__init__()
-        if backend == 'ossec':
+        if backend == 'sys':
+            if sys.platform == 'linux2':
+                from ocd.host._linux import LinuxBackend
+                self.backend = LinuxBackend()
+            elif sys.platform == 'win32' or sys.platform == 'cygwin':
+                from ocd.host._windows import WindowsBackend
+                self.backend = WindowsBackend()
+            elif sys.platform == 'darwin':
+                from ocd.host._mac import MacBackend
+                self.backend = MacBackend()
+            else:
+                raise NotImplementedError('System {} not supported!'
+                                          .format(sys.platform))
+        elif backend == 'ossec':
             from ocd.host._ossec import OssecBackend
             self.backend = OssecBackend()
-        elif backend == 'windows':
-            from ocd.host._windows import WindowsBackend
-            self.backend = WindowsBackend()
-        elif backend == 'linux' or backend == 'mac':
-            from ocd.host._linux import LinuxBackend
-            self.backend = LinuxBackend()
         else:
             raise NotImplementedError('Backend not supported!')
 
@@ -249,11 +246,11 @@ class HostSensor(Sensor):
         """ Get the unique users logged in within a period
 
         Args:
-            time_slot (optional[tuple]): a tuple of two specifying the
-                start and end time in the format of timestamp
+            time_slot (optional[tuple(datetime)]): a tuple of two
+                specifying the start and end time as datetime
 
         Returns:
-            set(str): unique set of users
+            list(str): unique set of users
         """
         return self.stat_logins(time_slot).keys()
 
@@ -261,11 +258,11 @@ class HostSensor(Sensor):
         """ Get the unique users logged in within a period
 
         Args:
-            time_slot (optional[tuple]): a tuple of two specifying the
-                start and end time in the format of timestamp
+            time_slot (optional[tuple(datetime)]): a tuple of two
+                specifying the start and end time as datetime
 
         Returns:
-            set(str): unique set of users
+            list(str): unique set of users
         """
         return self.stat_logouts(time_slot).keys()
 
@@ -273,11 +270,11 @@ class HostSensor(Sensor):
         """ Get the unique users failed in logging in within a period
 
         Args:
-            time_slot (optional[tuple]): a tuple of two specifying the
-                start and end time in the format of timestamp
+            time_slot (optional[tuple(datetime)]): a tuple of two
+                specifying the start and end time as datetime
 
         Returns:
-            set(str): unique set of users
+            list(str): unique set of users
         """
         return self.stat_authfailures(time_slot).keys()
 
@@ -285,37 +282,37 @@ class HostSensor(Sensor):
         """ Get a dict of users and their login freq
 
         Args:
-            time_slot (optional[tuple]): a tuple of two specifying the
-                start and end time in the format of timestamp
+            time_slot (optional[tuple(datetime)]): a tuple of two
+                specifying the start and end time as datetime
 
         Returns:
             dict(str->int): user vs how many times he successful logs in
         """
-        return self.backend.stat_logins(time_slot)
+        return self.backend.stat_logins(solid_timeslot(time_slot))
 
     def stat_logouts(self, time_slot=None):
         """ Get a dict of users and their logout freq
 
         Args:
-            time_slot (optional[tuple]): a tuple of two specifying the
-                start and end time in the format of timestamp
+            time_slot (optional[tuple(datetime)]): a tuple of two
+                specifying the start and end time as datetime
 
         Returns:
             dict(str->int): user vs how many times he logs out
         """
-        return self.backend.stat_logouts(time_slot)
+        return self.backend.stat_logouts(solid_timeslot(time_slot))
 
     def stat_authfailures(self, time_slot=None):
         """ Get a dict of users and their freq of authentication failure
 
         Args:
-            time_slot (optional[tuple]): a tuple of two specifying the
-                start and end time in the format of timestamp
+            time_slot (optional[tuple(datetime)]): a tuple of two
+                specifying the start and end time as datetime
 
         Returns:
             dict(str->int): user vs how many times he failed to log in
         """
-        return self.backend.stat_authfailures(time_slot)
+        return self.backend.stat_authfailures(solid_timeslot(time_slot))
 
     def user_activities(self, user, time_slot=None):
         """ Get a list of user activities within the time slot
@@ -323,16 +320,17 @@ class HostSensor(Sensor):
         Args:
             user (str): the username
 
-            time_slot (optional[tuple]): a tuple of two specifying the
-                start and end time in the format of timestamp
+            time_slot (optional[tuple(datetime)]): a tuple of two
+                specifying the start and end time as datetime
 
         Returns:
             list(dict): a list of user activities, each item is in
                 the format of {'activity': '...', 'ip': '...', 'time': '...'},
                 where activity can be 'login', 'logout', 'authfailure',
-                and time is an instance of datetime.datetime
+                and time is an instance of datetime.datetime.
+                Results will be sorted by time.
         """
-        return self.backend.user_activities(user, time_slot)
+        return self.backend.user_activities(user, solid_timeslot(time_slot))
 
     def cpu_usage(self):
         pass
