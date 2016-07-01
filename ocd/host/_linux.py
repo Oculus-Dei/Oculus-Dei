@@ -27,18 +27,28 @@ class LinuxBackend(object):
                 None for this backend.
         """
         def parse(line):
-            items = filter(identity, map(lambda x: x.strip(), line.split('  ')))
+            items = filter(identity, map(lambda x: x.strip(), line.split(' ')))
+            # special case
+            if items[1] == 'system' and items[2] == 'boot':
+                items[1] = 'system boot'
+                items.pop(2)
+
+            # time format
             tfmt = '%a %b %d %H:%M:%S %Y'
-            tin, tout = (items[3].split(' - ')+[''])[:2]
+            # parse tin
+            if len(items[5]) == 1:
+                items[5] = '0' + items[5]  # pad zero before day
+            tin = ' '.join(items[3:8])
             tin = datetime.strptime(tin, tfmt)
-            if tout:
-                p = tout.find('(')
-                if p >= 0:
-                    tout = tout[:p]
-                tout = tout.strip()
+            # parse tout
+            if items[8] == '-':
+                if len(items[10]) == 1:
+                    items[10] = '0' + items[10]
+                tout = ' '.join(items[9:14])
                 tout = datetime.strptime(tout, tfmt)
             else:
                 tout = None
+
             return {
                 'user':     items[0],
                 'terminal': items[1],
