@@ -140,6 +140,8 @@ class LinuxBackend(object):
         activities = []
         start, end = time_slot
         for login in self.last:
+            if login['user'] != user:
+                continue
             if start <= login['time_in'] < end:
                 activities.append({
                     'activity': 'login',
@@ -153,6 +155,8 @@ class LinuxBackend(object):
                     'time': login['time_out']
                 })
         for authfailure in self.lastb:
+            if authfailure['user'] != user:
+                continue
             if start <= authfailure['time_in'] < end:
                 activities.append({
                     'activity': 'authfailure',
