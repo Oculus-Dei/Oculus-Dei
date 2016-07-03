@@ -7,7 +7,7 @@ TODO: purpose
 import warnings
 from datetime import datetime, timedelta
 from ocd.utils import (pcall, identity, dict_acc,
-                       pcall_pipeline, get_frq_dict)
+                       pcall, get_frq_dict)
 from dateutil.relativedelta import relativedelta
 
 
@@ -39,10 +39,10 @@ class MacBackend(object):
                 }
                 
         try:
-            authf_local,bad = pcall_pipeline('syslog -F \'$((Time)(J)) $Host $(Sender)[$(PID)]<$((Level)(str))>: $Message\' | grep \'Failed to authenticate\'')
+            authf_local,bad = pcall('syslog -F \'$((Time)(J)) $Host $(Sender)[$(PID)]<$((Level)(str))>: $Message\' | grep \'Failed to authenticate\'')
             if bad:
                 raise OSError()
-            authf_ssh,bad = pcall_pipeline('syslog -F \'$((Time)(J)) $Host $(Sender)[$(PID)]<$((Level)(str))>: $Message\' | grep \'PAM: authentication error\'')
+            authf_ssh,bad = pcall('syslog -F \'$((Time)(J)) $Host $(Sender)[$(PID)]<$((Level)(str))>: $Message\' | grep \'PAM: authentication error\'')
             if bad:
                 raise OSError()
             self.authf['local'] = [parse_auth('local',l) for l in authf_local]

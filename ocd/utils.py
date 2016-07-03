@@ -71,13 +71,6 @@ def dict_acc(d1, d2):
             d1[k] = 1
 
 
-def pcall_pipeline(cmd):
-    p=sp.Popen(cmd,shell=True,stdout=sp.PIPE, stderr=sp.PIPE)
-    stdout, stderr = p.communicate()
-    stdout = filter(identity, stdout.split('\n'))
-    stderr = filter(identity, stderr.split('\n'))
-    return stdout, stderr
-
 def pcall(cmd):
     """ Call a cmd separated with space
     >>> stdout, stderr = pcall('ls -al')
@@ -95,8 +88,7 @@ def pcall(cmd):
         list[str]: stdout separated by lines
         list[str]: stderr separated by lines
     """
-    cmd = filter(identity, cmd.split(' '))
-    p = sp.Popen(cmd, stdout=sp.PIPE, stderr=sp.PIPE)
+    p = sp.Popen(cmd, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
     stdout, stderr = p.communicate()
     stdout = filter(identity, stdout.split('\n'))
     stderr = filter(identity, stderr.split('\n'))
