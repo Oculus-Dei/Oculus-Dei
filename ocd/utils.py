@@ -88,8 +88,7 @@ def pcall(cmd):
         list[str]: stdout separated by lines
         list[str]: stderr separated by lines
     """
-    cmd = filter(identity, cmd.split(' '))
-    p = sp.Popen(cmd, stdout=sp.PIPE, stderr=sp.PIPE)
+    p = sp.Popen(cmd, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
     stdout, stderr = p.communicate()
     stdout = filter(identity, stdout.split('\n'))
     stderr = filter(identity, stderr.split('\n'))
