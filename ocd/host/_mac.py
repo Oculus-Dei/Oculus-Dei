@@ -168,7 +168,7 @@ class MacBackend(object):
         start, end = time_slot
         for login in self.last:
             if login is not None :
-                # print login
+            
                 if start <= login['time_in'] < end:
                     dict_acc(r, {login['user']: 1})
 
@@ -189,4 +189,5 @@ class MacBackend(object):
             if login is not None:
                 if login['time_out'] and start <= login['time_out'] < end:
                     dict_acc(r, {login['user']: 1})
+
         return r
