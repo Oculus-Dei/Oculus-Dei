@@ -44,8 +44,11 @@ class LinuxBackend(object):
             if items[8] == '-':
                 if len(items[10]) == 1:
                     items[10] = '0' + items[10]
-                tout = ' '.join(items[9:14])
-                tout = datetime.strptime(tout, tfmt)
+                if items[9] == 'crash':
+                    tout = None
+                else:
+                    tout = ' '.join(items[9:14])
+                    tout = datetime.strptime(tout, tfmt)
             else:
                 tout = None
 
