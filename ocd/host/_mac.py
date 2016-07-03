@@ -14,8 +14,9 @@ from dateutil.relativedelta import relativedelta
 class MacBackend(object):
     def __init__(self):
         self.last = []
-        self.load()
         self.authf = {}
+        self.load()
+
 
     def load_auth_data(self,**kwargs):
         def parse_auth(auth_type,line):
@@ -44,9 +45,8 @@ class MacBackend(object):
             if bad:
                 raise OSError()
             self.authf['local'] = [parse_auth('local',l) for l in authf_local]
-            print(self.authf['local'])
+
             self.authf['ssh'] = [parse_auth('ssh',l)  for l in authf_ssh]
-            print(self.authf['ssh'])
         except OSError:
             raise Exception('`syslog` fails. Backend not supported.')
 
