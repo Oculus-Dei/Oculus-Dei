@@ -6,7 +6,8 @@ TODO: purpose
 """
 import warnings
 from datetime import datetime, timedelta
-from ocd.utils import pcall, identity, dict_acc,pcall_pipeline,get_frq_dict
+from ocd.utils import (pcall, identity, dict_acc,
+                       pcall_pipeline, get_frq_dict)
 from dateutil.relativedelta import relativedelta
 
 
@@ -189,7 +190,7 @@ class MacBackend(object):
             if bad:
                 raise OSError()
             else:
-                self.last = [parse(l) for l in last[:-1]]
+                self.last = filter(identity, [parse(l) for l in last[:-1]])
 
             self.load_auth_data()
         except OSError:
@@ -263,5 +264,30 @@ class MacBackend(object):
                 and time is an instance of datetime.datetime.
                 Results will be sorted by time.
         """
-        pass
+        activities = []
+        start, end = time_slot
+        for login in self.last:
+            if login['user'] == user:
+                if start <= login['time_in'] < end:
+                    activities.append({
+                        'activity': 'login',
+                        'ip': login['ip'],
+                        'time': login['time_in']
+                    })
+                if login['time_out'] and start <= login['time_out'] < end:
+                    activities.append({
+                        'activity': 'logout',
+                        'ip': login['ip'],
+                        'time': login['time_out']
+                    })
+        for conn_type in self.authf:
+            for authfailure in self.authf[conn_type]:
+                if authfailure['user']== user:
+                    if start <= authfailure['time'] < end:
+                        activities.append({
+                            'activity': 'authfailure',
+                            'ip': authfailure['ip'],
+                            'time': authfailure['time']
+                        })
+        return sorted(activities, key=lambda a: a['time'])
 
