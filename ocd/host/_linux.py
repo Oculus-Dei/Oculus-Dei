@@ -44,8 +44,11 @@ class LinuxBackend(object):
             if items[8] == '-':
                 if len(items[10]) == 1:
                     items[10] = '0' + items[10]
-                tout = ' '.join(items[9:14])
-                tout = datetime.strptime(tout, tfmt)
+                if items[9] == 'crash':
+                    tout = None
+                else:
+                    tout = ' '.join(items[9:14])
+                    tout = datetime.strptime(tout, tfmt)
             else:
                 tout = None
 
@@ -137,6 +140,8 @@ class LinuxBackend(object):
         activities = []
         start, end = time_slot
         for login in self.last:
+            if login['user'] != user:
+                continue
             if start <= login['time_in'] < end:
                 activities.append({
                     'activity': 'login',
@@ -150,6 +155,8 @@ class LinuxBackend(object):
                     'time': login['time_out']
                 })
         for authfailure in self.lastb:
+            if authfailure['user'] != user:
+                continue
             if start <= authfailure['time_in'] < end:
                 activities.append({
                     'activity': 'authfailure',
