@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="Oculus-Dei 0.1.0 documentation" href="index.html" />
-    <link rel="prev" title="Welcome to Oculus-Dei’s documentation!" href="index.html" />
+    <link rel="prev" title="Tutorial" href="tutorial.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -43,8 +43,73 @@
   <div class="section" id="module-ocd">
 <span id="api"></span><h1>API<a class="headerlink" href="#module-ocd" title="Permalink to this headline">¶</a></h1>
 <p>This module contains interfaces for multiple sensors.</p>
+<div class="section" id="device">
+<h2>Device<a class="headerlink" href="#device" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="ocd.Device">
+<em class="property">class </em><code class="descclassname">ocd.</code><code class="descname">Device</code><span class="sig-paren">(</span><em>addr='localhost'</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.Device" title="Permalink to this definition">¶</a></dt>
+<dd><p>Init a device at addr</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>addr: address of device. Currently only &#8216;localhost&#8217;</dt>
+<dd>is supported.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="ocd.Device.get_sensors">
+<code class="descname">get_sensors</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ocd.Device.get_sensors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a list of available sensors on this device.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>list[Sensor]</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="sensor">
+<h2>Sensor<a class="headerlink" href="#sensor" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="ocd.sensor.Sensor">
+<em class="property">class </em><code class="descclassname">ocd.sensor.</code><code class="descname">Sensor</code><span class="sig-paren">(</span><em>backend</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.sensor.Sensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Init a sensor</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>backend (str): backend sensor type</dd>
+</dl>
+<dl class="method">
+<dt id="ocd.sensor.Sensor.get_features">
+<code class="descname">get_features</code><span class="sig-paren">(</span><em>name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.sensor.Sensor.get_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>get a dict of available features, or the spec of a feature.</p>
+<p>If name is None, the entire features are returned.
+If name is str, the spec of that feature is returned.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>name: The feature name.</dd>
+<dt>Returns:</dt>
+<dd>list or str.</dd>
+</dl>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="ocd.sensor.Sensor.get_installed_backends">
+<em class="property">classmethod </em><code class="descname">get_installed_backends</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ocd.sensor.Sensor.get_installed_backends" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dict of installed backends, where key is str, val is class.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="ocd.sensor.Sensor.get_supported_backends">
+<em class="property">classmethod </em><code class="descname">get_supported_backends</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ocd.sensor.Sensor.get_supported_backends" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of supported backends.</p>
+</dd></dl>
+
+</dd></dl>
+
 <div class="section" id="networksensor">
-<h2>NetworkSensor<a class="headerlink" href="#networksensor" title="Permalink to this headline">¶</a></h2>
+<h3>NetworkSensor<a class="headerlink" href="#networksensor" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="ocd.NetworkSensor">
 <em class="property">class </em><code class="descclassname">ocd.</code><code class="descname">NetworkSensor</code><span class="sig-paren">(</span><em>backend='pyshark'</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.NetworkSensor" title="Permalink to this definition">¶</a></dt>
@@ -54,6 +119,32 @@
 <dt>Args:</dt>
 <dd>backend (str): either &#8216;pyshark&#8217; or &#8216;scapy&#8217;</dd>
 </dl>
+<dl class="method">
+<dt id="ocd.NetworkSensor.get_features">
+<code class="descname">get_features</code><span class="sig-paren">(</span><em>name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.NetworkSensor.get_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>get a dict of available features, or the spec of a feature.</p>
+<p>If name is None, the entire features are returned.
+If name is str, the spec of that feature is returned.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>name: The feature name.</dd>
+<dt>Returns:</dt>
+<dd>list or str.</dd>
+</dl>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="ocd.NetworkSensor.get_installed_backends">
+<em class="property">classmethod </em><code class="descname">get_installed_backends</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ocd.NetworkSensor.get_installed_backends" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a dict of installed backends, mapping str to cls.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="ocd.NetworkSensor.get_supported_backends">
+<em class="property">classmethod </em><code class="descname">get_supported_backends</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ocd.NetworkSensor.get_supported_backends" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a list of supported backends.</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="ocd.NetworkSensor.load">
 <code class="descname">load</code><span class="sig-paren">(</span><em>capfile</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.NetworkSensor.load" title="Permalink to this definition">¶</a></dt>
@@ -66,7 +157,7 @@
 
 <dl class="method">
 <dt id="ocd.NetworkSensor.sniff">
-<code class="descname">sniff</code><span class="sig-paren">(</span><em>interface</em>, <em>timeout=5</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.NetworkSensor.sniff" title="Permalink to this definition">¶</a></dt>
+<code class="descname">sniff</code><span class="sig-paren">(</span><em>interface</em>, <em>timeout=10</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.NetworkSensor.sniff" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sniff from an interface for a period of time</p>
 <dl class="docutils">
 <dt>Args:</dt>
@@ -86,8 +177,8 @@ all unique ips will be returned.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><dl class="first docutils">
-<dt>time_slot (optional[tuple]): a tuple of two specifying the</dt>
-<dd>start and end time in the format of timestamp.</dd>
+<dt>time_slot (optional[tuple(datetime)]): a tuple of two</dt>
+<dd>specifying the start and end time as datetime</dd>
 </dl>
 <p>src_ip (optional[list(str), or single str]): src ip(s).</p>
 <dl class="last docutils">
@@ -107,8 +198,8 @@ all unique ips will be returned.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><dl class="first docutils">
-<dt>time_slot (optional[tuple]): a tuple of two specifying the</dt>
-<dd>start and end time in the format of timestamp</dd>
+<dt>time_slot (optional[tuple(datetime)]): a tuple of two</dt>
+<dd>specifying the start and end time as datetime</dd>
 </dl>
 <p class="last">ip (optional[list(str)]):</p>
 </dd>
@@ -124,8 +215,8 @@ all unique ips will be returned.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><dl class="first docutils">
-<dt>time_slot (optional[tuple]): a tuple of two specifying the</dt>
-<dd>start and end time in the format of timestamp</dd>
+<dt>time_slot (optional[tuple(datetime)]): a tuple of two</dt>
+<dd>specifying the start and end time as datetime</dd>
 </dl>
 <p class="last">ip (optional[list(str), or single str]): the corresponding ip(s)</p>
 </dd>
@@ -162,8 +253,8 @@ all unique ips will be returned.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><dl class="first docutils">
-<dt>time_slot (optional[tuple]): a tuple of two specifying the</dt>
-<dd>start and end time in the format of timestamp</dd>
+<dt>time_slot (optional[tuple(datetime)]): a tuple of two</dt>
+<dd>specifying the start and end time as datetime</dd>
 </dl>
 <p>src_ip (optional[list(str), or single str]): src ip(s)</p>
 <dl class="last docutils">
@@ -172,7 +263,7 @@ all unique ips will be returned.</p>
 </dl>
 </dd>
 <dt>Returns:</dt>
-<dd>set(str): unique ip addresses</dd>
+<dd>list(str): unique ip addresses</dd>
 </dl>
 </dd></dl>
 
@@ -183,13 +274,13 @@ all unique ips will be returned.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><dl class="first docutils">
-<dt>time_slot (optional[tuple]): a tuple of two specifying the</dt>
-<dd>start and end time in the format of timestamp</dd>
+<dt>time_slot (optional[tuple(datetime)]): a tuple of two</dt>
+<dd>specifying the start and end time as datetime</dd>
 </dl>
 <p class="last">ip (optional[list(str)]):</p>
 </dd>
 <dt>Returns:</dt>
-<dd>set(str): mac addresses</dd>
+<dd>list(str): mac addresses</dd>
 </dl>
 </dd></dl>
 
@@ -200,8 +291,8 @@ all unique ips will be returned.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><dl class="first docutils">
-<dt>time_slot (optional[tuple]): a tuple of two specifying the</dt>
-<dd>start and end time in the format of timestamp</dd>
+<dt>time_slot (optional[tuple(datetime)]): a tuple of two</dt>
+<dd>specifying the start and end time as datetime</dd>
 </dl>
 <p class="last">ip (optional[list(str), or single str]): the corresponding ip(s)</p>
 </dd>
@@ -217,33 +308,59 @@ all unique ips will be returned.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><dl class="first docutils">
-<dt>time_slot (optional[tuple]): a tuple of two specifying the</dt>
-<dd>start and end time in the format of timestamp</dd>
+<dt>time_slot (optional[tuple(datetime)]): a tuple of two</dt>
+<dd>specifying the start and end time as datetime</dd>
 </dl>
 <p>src_ip (optional[list(str), or single str]): src ip(s)</p>
 <p class="last">dst_ip (optional[list(str), or single str]): dst ip(s)</p>
 </dd>
 <dt>Returns:</dt>
-<dd>set(str): unique protocols</dd>
+<dd>list(str): unique protocols</dd>
 </dl>
 </dd></dl>
 
 </dd></dl>
 
 </div>
-<div class="section" id="hostsensor">
-<h2>HostSensor<a class="headerlink" href="#hostsensor" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="authsensor">
+<h3>AuthSensor<a class="headerlink" href="#authsensor" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
-<dt id="ocd.HostSensor">
-<em class="property">class </em><code class="descclassname">ocd.</code><code class="descname">HostSensor</code><span class="sig-paren">(</span><em>backend='ossec'</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.HostSensor" title="Permalink to this definition">¶</a></dt>
-<dd><p>Init a host-based sensor</p>
+<dt id="ocd.AuthSensor">
+<em class="property">class </em><code class="descclassname">ocd.</code><code class="descname">AuthSensor</code><span class="sig-paren">(</span><em>backend='sys'</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.AuthSensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Init an auth sensor.</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd>backend (str): either ossec, windows, linux or mac</dd>
+<dd>backend (str): only &#8216;sys&#8217; is supported now.</dd>
 </dl>
 <dl class="method">
-<dt id="ocd.HostSensor.load">
-<code class="descname">load</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.HostSensor.load" title="Permalink to this definition">¶</a></dt>
+<dt id="ocd.AuthSensor.get_features">
+<code class="descname">get_features</code><span class="sig-paren">(</span><em>name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.AuthSensor.get_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>get a dict of available features, or the spec of a feature.</p>
+<p>If name is None, the entire features are returned.
+If name is str, the spec of that feature is returned.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>name: The feature name.</dd>
+<dt>Returns:</dt>
+<dd>list or str.</dd>
+</dl>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="ocd.AuthSensor.get_installed_backends">
+<em class="property">classmethod </em><code class="descname">get_installed_backends</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ocd.AuthSensor.get_installed_backends" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a dict of installed backends, mapping str to cls.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="ocd.AuthSensor.get_supported_backends">
+<em class="property">classmethod </em><code class="descname">get_supported_backends</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ocd.AuthSensor.get_supported_backends" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a list of supported backends.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ocd.AuthSensor.load">
+<code class="descname">load</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.AuthSensor.load" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load the system log</p>
 <p>It loads log(s) from default location. If they are not in the
 default location, specify in <a href="#id1"><span class="problematic" id="id2">**</span></a>kwargs.</p>
@@ -255,14 +372,14 @@ default location, specify in <a href="#id1"><span class="problematic" id="id2">*
 </dd></dl>
 
 <dl class="method">
-<dt id="ocd.HostSensor.stat_authfailures">
-<code class="descname">stat_authfailures</code><span class="sig-paren">(</span><em>time_slot=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.HostSensor.stat_authfailures" title="Permalink to this definition">¶</a></dt>
+<dt id="ocd.AuthSensor.stat_authfailures">
+<code class="descname">stat_authfailures</code><span class="sig-paren">(</span><em>time_slot=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.AuthSensor.stat_authfailures" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a dict of users and their freq of authentication failure</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><dl class="first last docutils">
-<dt>time_slot (optional[tuple]): a tuple of two specifying the</dt>
-<dd>start and end time in the format of timestamp</dd>
+<dt>time_slot (optional[tuple(datetime)]): a tuple of two</dt>
+<dd>specifying the start and end time as datetime</dd>
 </dl>
 </dd>
 <dt>Returns:</dt>
@@ -271,14 +388,14 @@ default location, specify in <a href="#id1"><span class="problematic" id="id2">*
 </dd></dl>
 
 <dl class="method">
-<dt id="ocd.HostSensor.stat_logins">
-<code class="descname">stat_logins</code><span class="sig-paren">(</span><em>time_slot=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.HostSensor.stat_logins" title="Permalink to this definition">¶</a></dt>
+<dt id="ocd.AuthSensor.stat_logins">
+<code class="descname">stat_logins</code><span class="sig-paren">(</span><em>time_slot=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.AuthSensor.stat_logins" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a dict of users and their login freq</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><dl class="first last docutils">
-<dt>time_slot (optional[tuple]): a tuple of two specifying the</dt>
-<dd>start and end time in the format of timestamp</dd>
+<dt>time_slot (optional[tuple(datetime)]): a tuple of two</dt>
+<dd>specifying the start and end time as datetime</dd>
 </dl>
 </dd>
 <dt>Returns:</dt>
@@ -287,14 +404,14 @@ default location, specify in <a href="#id1"><span class="problematic" id="id2">*
 </dd></dl>
 
 <dl class="method">
-<dt id="ocd.HostSensor.stat_logouts">
-<code class="descname">stat_logouts</code><span class="sig-paren">(</span><em>time_slot=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.HostSensor.stat_logouts" title="Permalink to this definition">¶</a></dt>
+<dt id="ocd.AuthSensor.stat_logouts">
+<code class="descname">stat_logouts</code><span class="sig-paren">(</span><em>time_slot=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.AuthSensor.stat_logouts" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a dict of users and their logout freq</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><dl class="first last docutils">
-<dt>time_slot (optional[tuple]): a tuple of two specifying the</dt>
-<dd>start and end time in the format of timestamp</dd>
+<dt>time_slot (optional[tuple(datetime)]): a tuple of two</dt>
+<dd>specifying the start and end time as datetime</dd>
 </dl>
 </dd>
 <dt>Returns:</dt>
@@ -303,63 +420,63 @@ default location, specify in <a href="#id1"><span class="problematic" id="id2">*
 </dd></dl>
 
 <dl class="method">
-<dt id="ocd.HostSensor.unique_authfailures">
-<code class="descname">unique_authfailures</code><span class="sig-paren">(</span><em>time_slot=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.HostSensor.unique_authfailures" title="Permalink to this definition">¶</a></dt>
+<dt id="ocd.AuthSensor.unique_authfailures">
+<code class="descname">unique_authfailures</code><span class="sig-paren">(</span><em>time_slot=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.AuthSensor.unique_authfailures" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the unique users failed in logging in within a period</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><dl class="first last docutils">
-<dt>time_slot (optional[tuple]): a tuple of two specifying the</dt>
-<dd>start and end time in the format of timestamp</dd>
+<dt>time_slot (optional[tuple(datetime)]): a tuple of two</dt>
+<dd>specifying the start and end time as datetime</dd>
 </dl>
 </dd>
 <dt>Returns:</dt>
-<dd>set(str): unique set of users</dd>
+<dd>list(str): unique set of users</dd>
 </dl>
 </dd></dl>
 
 <dl class="method">
-<dt id="ocd.HostSensor.unique_logins">
-<code class="descname">unique_logins</code><span class="sig-paren">(</span><em>time_slot=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.HostSensor.unique_logins" title="Permalink to this definition">¶</a></dt>
+<dt id="ocd.AuthSensor.unique_logins">
+<code class="descname">unique_logins</code><span class="sig-paren">(</span><em>time_slot=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.AuthSensor.unique_logins" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the unique users logged in within a period</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><dl class="first last docutils">
-<dt>time_slot (optional[tuple]): a tuple of two specifying the</dt>
-<dd>start and end time in the format of timestamp</dd>
+<dt>time_slot (optional[tuple(datetime)]): a tuple of two</dt>
+<dd>specifying the start and end time as datetime</dd>
 </dl>
 </dd>
 <dt>Returns:</dt>
-<dd>set(str): unique set of users</dd>
+<dd>list(str): unique set of users</dd>
 </dl>
 </dd></dl>
 
 <dl class="method">
-<dt id="ocd.HostSensor.unique_logouts">
-<code class="descname">unique_logouts</code><span class="sig-paren">(</span><em>time_slot=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.HostSensor.unique_logouts" title="Permalink to this definition">¶</a></dt>
+<dt id="ocd.AuthSensor.unique_logouts">
+<code class="descname">unique_logouts</code><span class="sig-paren">(</span><em>time_slot=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.AuthSensor.unique_logouts" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the unique users logged in within a period</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><dl class="first last docutils">
-<dt>time_slot (optional[tuple]): a tuple of two specifying the</dt>
-<dd>start and end time in the format of timestamp</dd>
+<dt>time_slot (optional[tuple(datetime)]): a tuple of two</dt>
+<dd>specifying the start and end time as datetime</dd>
 </dl>
 </dd>
 <dt>Returns:</dt>
-<dd>set(str): unique set of users</dd>
+<dd>list(str): unique set of users</dd>
 </dl>
 </dd></dl>
 
 <dl class="method">
-<dt id="ocd.HostSensor.user_activities">
-<code class="descname">user_activities</code><span class="sig-paren">(</span><em>user</em>, <em>time_slot=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.HostSensor.user_activities" title="Permalink to this definition">¶</a></dt>
+<dt id="ocd.AuthSensor.user_activities">
+<code class="descname">user_activities</code><span class="sig-paren">(</span><em>user</em>, <em>time_slot=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.AuthSensor.user_activities" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a list of user activities within the time slot</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><p class="first">user (str): the username</p>
 <dl class="last docutils">
-<dt>time_slot (optional[tuple]): a tuple of two specifying the</dt>
-<dd>start and end time in the format of timestamp</dd>
+<dt>time_slot (optional[tuple(datetime)]): a tuple of two</dt>
+<dd>specifying the start and end time as datetime</dd>
 </dl>
 </dd>
 <dt>Returns:</dt>
@@ -367,7 +484,8 @@ default location, specify in <a href="#id1"><span class="problematic" id="id2">*
 <dt>list(dict): a list of user activities, each item is in</dt>
 <dd>the format of {&#8216;activity&#8217;: &#8216;...&#8217;, &#8216;ip&#8217;: &#8216;...&#8217;, &#8216;time&#8217;: &#8216;...&#8217;},
 where activity can be &#8216;login&#8217;, &#8216;logout&#8217;, &#8216;authfailure&#8217;,
-and time is an instance of datetime.datetime</dd>
+and time is an instance of datetime.datetime.
+Results will be sorted by time.</dd>
 </dl>
 </dd>
 </dl>
@@ -375,6 +493,154 @@ and time is an instance of datetime.datetime</dd>
 
 </dd></dl>
 
+</div>
+<div class="section" id="filesensor">
+<h3>FileSensor<a class="headerlink" href="#filesensor" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="ocd.FileSensor">
+<em class="property">class </em><code class="descclassname">ocd.</code><code class="descname">FileSensor</code><span class="sig-paren">(</span><em>backend='sys'</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.FileSensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Init a file sensor
+Args:</p>
+<blockquote>
+<div>backend (str): only &#8216;sys&#8217; is supported</div></blockquote>
+<dl class="method">
+<dt id="ocd.FileSensor.fpath_activities">
+<code class="descname">fpath_activities</code><span class="sig-paren">(</span><em>fpath</em>, <em>time_slot=None</em>, <em>user=None</em>, <em>cmd=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.FileSensor.fpath_activities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Give a list of activities done to the file. Sorted by time.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">fpath: the file path to look for.</p>
+<dl class="last docutils">
+<dt>time_slot (optional[tuple(datetime)]): a tuple of two</dt>
+<dd>specifying the start and end time as datetime</dd>
+<dt>user (optional[list[str]]): a list of users within which</dt>
+<dd>to be filtered. Could also be a single str.</dd>
+<dt>cmd (optional[list[str]]): a list of cmds within which</dt>
+<dd>to be filtered. Could also be a single str.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>list[{&#8216;user&#8217;: xxx, &#8216;cmd&#8217;: xxx, &#8216;time&#8217;: xxx}]</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ocd.FileSensor.get_features">
+<code class="descname">get_features</code><span class="sig-paren">(</span><em>name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.FileSensor.get_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>get a dict of available features, or the spec of a feature.</p>
+<p>If name is None, the entire features are returned.
+If name is str, the spec of that feature is returned.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>name: The feature name.</dd>
+<dt>Returns:</dt>
+<dd>list or str.</dd>
+</dl>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="ocd.FileSensor.get_installed_backends">
+<em class="property">classmethod </em><code class="descname">get_installed_backends</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ocd.FileSensor.get_installed_backends" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a dict of installed backends, mapping str to cls.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="ocd.FileSensor.get_supported_backends">
+<em class="property">classmethod </em><code class="descname">get_supported_backends</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ocd.FileSensor.get_supported_backends" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a list of supported backends.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ocd.FileSensor.snoop">
+<code class="descname">snoop</code><span class="sig-paren">(</span><em>timeout=10</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.FileSensor.snoop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Snoop open&#8217;s for a while</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>timeout (int): how long to snoop</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ocd.FileSensor.stat_cmds">
+<code class="descname">stat_cmds</code><span class="sig-paren">(</span><em>time_slot=None</em>, <em>user=None</em>, <em>fpath=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.FileSensor.stat_cmds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Count freq of cmds openning files</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>time_slot (optional[tuple(datetime)]): a tuple of two</dt>
+<dd>specifying the start and end time as datetime</dd>
+<dt>user (optional[list[str]]): a list of users within which</dt>
+<dd>to be filtered. Could also be a single str.</dd>
+<dt>fpath (optional[list[str]]): a list of files within which</dt>
+<dd>to be filtered. Could also be a single str.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>dict{str-&gt;int}: dict of cmds and counts</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ocd.FileSensor.stat_fpaths">
+<code class="descname">stat_fpaths</code><span class="sig-paren">(</span><em>time_slot=None</em>, <em>user=None</em>, <em>cmd=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.FileSensor.stat_fpaths" title="Permalink to this definition">¶</a></dt>
+<dd><p>Count freq of fpaths of openning files</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>time_slot (optional[tuple(datetime)]): a tuple of two</dt>
+<dd>specifying the start and end time as datetime</dd>
+<dt>user (optional[list[str]]): a list of users within which</dt>
+<dd>to be filtered. Could also be a single str.</dd>
+<dt>cmd (optional[list[str]]): a list of cmds within which</dt>
+<dd>to be filtered. Could also be a single str.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>dict{str-&gt;int}: dict of fpaths and counts</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ocd.FileSensor.stat_users">
+<code class="descname">stat_users</code><span class="sig-paren">(</span><em>time_slot=None</em>, <em>cmd=None</em>, <em>fpath=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.FileSensor.stat_users" title="Permalink to this definition">¶</a></dt>
+<dd><p>Count freq of users opening files</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>time_slot (optional[tuple(datetime)]): a tuple of two</dt>
+<dd>specifying the start and end time as datetime</dd>
+<dt>cmd (optional[list[str]]): a list of cmds within which</dt>
+<dd>to be filtered. Could also be a single str.</dd>
+<dt>fpath (optional[list[str]]): a list of files within which</dt>
+<dd>to be filtered. Could also be a single str.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>dict{str-&gt;int}: dict of users and counts</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ocd.FileSensor.unique_cmds">
+<code class="descname">unique_cmds</code><span class="sig-paren">(</span><em>time_slot=None</em>, <em>user=None</em>, <em>fpath=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.FileSensor.unique_cmds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unique api for stat_cmds. See stat_cmds for detail.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ocd.FileSensor.unique_fpaths">
+<code class="descname">unique_fpaths</code><span class="sig-paren">(</span><em>time_slot=None</em>, <em>user=None</em>, <em>cmd=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.FileSensor.unique_fpaths" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unique api for stat_fpaths. See stat_fpaths for detail.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ocd.FileSensor.unique_users">
+<code class="descname">unique_users</code><span class="sig-paren">(</span><em>time_slot=None</em>, <em>cmd=None</em>, <em>fpath=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.FileSensor.unique_users" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unique api for stat_users. See stat_users for detail.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
 </div>
 </div>
 
@@ -387,8 +653,13 @@ and time is an instance of datetime.datetime</dd>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">API</a><ul>
+<li><a class="reference internal" href="#device">Device</a></li>
+<li><a class="reference internal" href="#sensor">Sensor</a><ul>
 <li><a class="reference internal" href="#networksensor">NetworkSensor</a></li>
-<li><a class="reference internal" href="#hostsensor">HostSensor</a></li>
+<li><a class="reference internal" href="#authsensor">AuthSensor</a></li>
+<li><a class="reference internal" href="#filesensor">FileSensor</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -396,7 +667,7 @@ and time is an instance of datetime.datetime</dd>
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="index.html" title="previous chapter">Welcome to Oculus-Dei&#8217;s documentation!</a></li>
+      <li>Previous: <a href="tutorial.html" title="previous chapter">Tutorial</a></li>
   </ul></li>
 </ul>
 </div>
