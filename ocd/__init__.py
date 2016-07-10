@@ -6,4 +6,9 @@ All rights reserved.
 TODO: purpose
 """
 
-from sensor import NetworkSensor, HostSensor
+from sensor import (
+    NetworkSensor,
+    AuthSensor,
+    FileSensor,
+)
+from device import Device

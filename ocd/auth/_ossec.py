@@ -2,7 +2,7 @@
 """
 Created by misaka-10032 (longqic@andrew.cmu.edu).
 
-Ossec backend for host-based sensor
+Ossec backend for auth-based sensor
 """
 
 

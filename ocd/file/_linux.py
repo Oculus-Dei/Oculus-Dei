@@ -2,5 +2,9 @@
 """
 Created by misaka-10032 (longqic@andrew.cmu.edu).
 
-TODO: purpose
+Opensnoop wrapper for linux
 """
+
+
+class LinuxBackend(object):
+    pass

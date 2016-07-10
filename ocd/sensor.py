@@ -6,35 +6,94 @@ Main API for sensors
 """
 
 import sys
-from datetime import datetime
+import inspect
+
 from utils import solid_timeslot, timeslot_with_timestamps
 
 
 class Sensor(object):
-    def __init__(self):
-        pass
+    @classmethod
+    def get_supported_backends(cls):
+        """ Return a list of supported backends. """
+        raise NotImplementedError()
+
+    @classmethod
+    def get_installed_backends(cls):
+        """ Return a dict of installed backends, where key is str, val is class. """
+        raise NotImplementedError()
+
+    def __init__(self, backend):
+        """ Init a sensor
+
+        Args:
+            backend (str): backend sensor type
+        """
+        self.backend_str = backend
+        backends = self.get_installed_backends()
+        if backend in backends:
+            self.backend = backends[backend]()
+        else:
+            raise NotImplementedError('Backend not supported!')
+
+    def get_features(self, name=None):
+        """ get a dict of available features, or the spec of a feature.
+
+        If name is None, the entire features are returned.
+        If name is str, the spec of that feature is returned.
+
+        Args:
+            name: The feature name.
+
+        Returns:
+            list or str.
+        """
+        members = inspect.getmembers(self, inspect.ismethod)
+        features = {m[0]: inspect.getdoc(m[1]) for m in members}
+        if name is None:
+            return features.keys()
+        elif name in features:
+            return features[name]
+        else:
+            raise NotImplementedError("Feature not supported!")
+
+    def __repr__(self):
+        return "<{} backend='{}'>".format(self.__class__.__name__,
+                                          self.backend_str)
 
 
 class NetworkSensor(Sensor):
     """ Network sensor for packet analysis """
 
+    @classmethod
+    def get_supported_backends(cls):
+        """ Get a list of supported backends. """
+        return ['pyshark', 'scapy']
+
+    @classmethod
+    def get_installed_backends(cls):
+        """ Get a dict of installed backends, mapping str to cls. """
+        backends = {}
+        try:
+            from network._pyshark import PysharkWrapper
+            backends['pyshark'] = PysharkWrapper
+        except ImportError:
+            pass
+        try:
+            from network._scapy import ScapyWrapper
+            backends['scapy'] = ScapyWrapper
+        except ImportError:
+            pass
+        return backends
+
     def __init__(self, backend='pyshark'):
         """ Init a network sensor
 
         Args:
-            backend (str): either 'pyshark' or 'scapy'
+             backend (str): either 'pyshark' or 'scapy'
         """
-        super(NetworkSensor, self).__init__()
-        if backend == 'pyshark':
-            from network._pyshark import PysharkWrapper
-            self.wrapper = PysharkWrapper()
-        elif backend == 'scapy':
-            from network._scapy import ScapyWrapper
-            self.wrapper = ScapyWrapper()
-        else:
-            raise NotImplementedError('Backend not supported!')
+        super(NetworkSensor, self).__init__(backend)
 
-    def sniff(self, interface, timeout=5):
+    def sniff(self, interface, timeout=10):
         """Sniff from an interface for a period of time
 
         Args:
@@ -42,7 +101,7 @@ class NetworkSensor(Sensor):
 
             timeout (optional[int]): time to sniff
         """
-        self.wrapper.sniff(interface, timeout)
+        self.backend.sniff(interface, timeout)
 
     def load(self, capfile):
         """Load a capture file. Backend could change accordingly.
@@ -50,7 +109,7 @@ class NetworkSensor(Sensor):
         Args:
             capfile: capture file
         """
-        self.wrapper.load(capfile)
+        self.backend.load(capfile)
 
     def unique_macs(self, time_slot=None, ip=None):
         """Get a unique set of MAC addresses within the capture
@@ -64,7 +123,6 @@ class NetworkSensor(Sensor):
         Returns:
             list(str): mac addresses
         """
-
         return self.stat_macs(time_slot, ip).keys()
 
     def unique_ips(self, time_slot=None, src_ip=None, dst_ip=None):
@@ -132,7 +190,7 @@ class NetworkSensor(Sensor):
         """
         if ip is not None and not isinstance(ip, list):
             ip = [ip]
-        return self.wrapper.stat_macs(timeslot_with_timestamps(time_slot), ip)
+        return self.backend.stat_macs(timeslot_with_timestamps(time_slot), ip)
 
     def stat_ips(self, time_slot=None, src_ip=None, dst_ip=None):
         """Get a dict of ips and their freq
@@ -159,7 +217,7 @@ class NetworkSensor(Sensor):
             src_ip = [src_ip]
         if dst_ip is not None and not isinstance(dst_ip, list):
             dst_ip = [dst_ip]
-        return self.wrapper.stat_ips(timeslot_with_timestamps(time_slot),
+        return self.backend.stat_ips(timeslot_with_timestamps(time_slot),
                                      src_ip, dst_ip)
 
     def stat_protocols(self, time_slot=None, src_ip=None, dst_ip=None):
@@ -182,7 +240,7 @@ class NetworkSensor(Sensor):
             src_ip = [src_ip]
         if dst_ip is not None and not isinstance(dst_ip, list):
             dst_ip = [dst_ip]
-        return self.wrapper.stat_protocols(timeslot_with_timestamps(time_slot),
+        return self.backend.stat_protocols(timeslot_with_timestamps(time_slot),
                                            src_ip, dst_ip)
 
     def stat_ports(self, time_slot=None, ip=None):
@@ -199,35 +257,42 @@ class NetworkSensor(Sensor):
         """
         if ip is not None and not isinstance(ip, list):
             ip = [ip]
-        return self.wrapper.stat_ports(timeslot_with_timestamps(time_slot), ip)
+        return self.backend.stat_ports(timeslot_with_timestamps(time_slot), ip)
 
 
-class HostSensor(Sensor):
-    def __init__(self, backend='sys'):
-        """ Init a host-based sensor
+class AuthSensor(Sensor):
+    @classmethod
+    def get_supported_backends(cls):
+        """ Get a list of supported backends. """
+        return ['sys']
 
-        Args:
-            backend (str): either 'sys' or 'ossec'
-        """
-        super(Sensor, self).__init__()
-        if backend == 'sys':
-            if sys.platform == 'linux2':
-                from ocd.host._linux import LinuxBackend
-                self.backend = LinuxBackend()
-            elif sys.platform == 'win32' or sys.platform == 'cygwin':
-                from ocd.host._windows import WindowsBackend
-                self.backend = WindowsBackend()
-            elif sys.platform == 'darwin':
-                from ocd.host._mac import MacBackend
-                self.backend = MacBackend()
-            else:
+    @classmethod
+    def get_installed_backends(cls):
+        """ Get a dict of installed backends, mapping str to cls. """
+        backends = {}
+        if sys.platform == 'linux2':
+            from ocd.auth._linux import LinuxBackend
+            backends['sys'] = LinuxBackend
+        elif sys.platform == 'win32' or sys.platform == 'cygwin':
+            from ocd.auth._windows import WindowsBackend
+            backends['sys'] = WindowsBackend
+        elif sys.platform == 'darwin':
+            from ocd.auth._mac import MacBackend
+            backends['sys'] = MacBackend
+        else:
+            def not_supported():
                 raise NotImplementedError('System {} not supported!'
                                           .format(sys.platform))
-        elif backend == 'ossec':
-            from ocd.host._ossec import OssecBackend
-            self.backend = OssecBackend()
-        else:
-            raise NotImplementedError('Backend not supported!')
+            backends['sys'] = not_supported
+        return backends
+
+    def __init__(self, backend='sys'):
+        """ Init an auth sensor.
+
+        Args:
+            backend (str): only 'sys' is supported now.
+        """
+        super(AuthSensor, self).__init__(backend)
 
     def load(self, **kwargs):
         """ Load the system log
@@ -332,18 +397,135 @@ class HostSensor(Sensor):
         """
         return self.backend.user_activities(user, solid_timeslot(time_slot))
 
-    def cpu_usage(self):
-        pass
 
-    def mem_usage(self):
-        pass
+class FileSensor(Sensor):
+    @classmethod
+    def get_supported_backends(cls):
+        """ Get a list of supported backends. """
+        return ['sys']
 
-    def unique_apps(self):
-        pass
+    @classmethod
+    def get_installed_backends(cls):
+        """ Get a dict of installed backends, mapping str to cls. """
+        def not_supported():
+            raise NotImplementedError('System {} not supported!'
+                                      .format(sys.platform))
+        backends = {}
+        if sys.platform == 'linux2' or sys.platform == 'darwin':
+            from ocd.file._linux import LinuxBackend
+            backends['sys'] = LinuxBackend
+        else:
+            backends['sys'] = not_supported
+        return backends
 
-    def processes(self):
-        pass
+    def __init__(self, backend='sys'):
+        """ Init a file sensor
+        Args:
+            backend (str): only 'sys' is supported
+        """
+        super(FileSensor, self).__init__(backend)
 
+    def snoop(self, timeout=10):
+        """ Snoop open's for a while
 
-class MotionSensor(Sensor):
-    pass
+        Args:
+            timeout (int): how long to snoop
+        """
+        self.backend.snoop(timeout)
+
+    def unique_users(self, time_slot=None, cmd=None, fpath=None):
+        """ Unique api for stat_users. See stat_users for detail. """
+        return self.stat_users(time_slot, cmd, fpath)
+
+    def unique_cmds(self, time_slot=None, user=None, fpath=None):
+        """ Unique api for stat_cmds. See stat_cmds for detail. """
+        return self.stat_cmds(time_slot, user, fpath)
+
+    def unique_fpaths(self, time_slot=None, user=None, cmd=None):
+        """ Unique api for stat_fpaths. See stat_fpaths for detail. """
+        return self.stat_fpaths(time_slot, user, cmd)
+
+    def stat_users(self, time_slot=None, cmd=None, fpath=None):
+        """ Count freq of users opening files
+
+        Args:
+            time_slot (optional[tuple(datetime)]): a tuple of two
+                specifying the start and end time as datetime
+
+            cmd (optional[list[str]]): a list of cmds within which
+                to be filtered. Could also be a single str.
+
+            fpath (optional[list[str]]): a list of files within which
+                to be filtered. Could also be a single str.
+        Returns:
+            dict{str->int}: dict of users and counts
+        """
+        time_slot = solid_timeslot(time_slot)
+        cmd = [cmd] if isinstance(cmd, str) else cmd
+        fpath = [fpath] if isinstance(fpath, str) else fpath
+        return self.backend.stat_users(time_slot, cmd, fpath)
+
+    def stat_cmds(self, time_slot=None, user=None, fpath=None):
+        """ Count freq of cmds openning files
+
+        Args:
+            time_slot (optional[tuple(datetime)]): a tuple of two
+                specifying the start and end time as datetime
+
+            user (optional[list[str]]): a list of users within which
+                to be filtered. Could also be a single str.
+
+            fpath (optional[list[str]]): a list of files within which
+                to be filtered. Could also be a single str.
+
+        Returns:
+            dict{str->int}: dict of cmds and counts
+        """
+        time_slot = solid_timeslot(time_slot)
+        user = [user] if isinstance(user, str) else user
+        fpath = [fpath] if isinstance(fpath, str) else fpath
+        return self.backend.stat_cmds(time_slot, user, fpath)
+
+    def stat_fpaths(self, time_slot=None, user=None, cmd=None):
+        """ Count freq of fpaths of openning files
+
+        Args:
+            time_slot (optional[tuple(datetime)]): a tuple of two
+                specifying the start and end time as datetime
+
+            user (optional[list[str]]): a list of users within which
+                to be filtered. Could also be a single str.
+
+            cmd (optional[list[str]]): a list of cmds within which
+                to be filtered. Could also be a single str.
+
+        Returns:
+            dict{str->int}: dict of fpaths and counts
+        """
+        time_slot = solid_timeslot(time_slot)
+        user = [user] if isinstance(user, str) else user
+        cmd = [cmd] if isinstance(cmd, str) else cmd
+        return self.backend.stat_fpaths(time_slot, user, cmd)
+
+    def fpath_activities(self, fpath, time_slot=None, user=None, cmd=None):
+        """ Give a list of activities done to the file. Sorted by time.
+
+        Args:
+            fpath: the file path to look for.
+
+            time_slot (optional[tuple(datetime)]): a tuple of two
+                specifying the start and end time as datetime
+
+            user (optional[list[str]]): a list of users within which
+                to be filtered. Could also be a single str.
+
+            cmd (optional[list[str]]): a list of cmds within which
+                to be filtered. Could also be a single str.
+
+        Returns:
+            list[{'user': xxx, 'cmd': xxx, 'time': xxx}]
+        """
+        time_slot = solid_timeslot(time_slot)
+        user = [user] if isinstance(user, str) else user
+        cmd = [cmd] if isinstance(cmd, str) else cmd
+        return self.backend.fpath_activities(time_slot, user, cmd)

@@ -2,7 +2,7 @@
 """
 Created by misaka-10032 (longqic@andrew.cmu.edu).
 
-Linux backend for host-based sensor
+Linux backend for auth-based sensor
 """
 
 import warnings

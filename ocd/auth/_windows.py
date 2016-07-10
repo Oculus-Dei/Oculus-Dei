@@ -2,7 +2,7 @@
 """
 Created by misaka-10032 (longqic@andrew.cmu.edu).
 
-Windows backend for host-based sensor
+Windows backend for auth-based sensor
 """
 
 
