@@ -1,2 +1,5 @@
 language: python
-script: py.test test
+install:
+    - pip install .
+script:
+    - py.test test
