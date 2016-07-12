@@ -1,0 +1,4 @@
+pyshark[extras]
+scapy[extras]
+python-evtx[extras]
+
