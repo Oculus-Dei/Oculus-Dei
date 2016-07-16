@@ -4,12 +4,12 @@ Created by misaka-10032 (longqic@andrew.cmu.edu).
 
 TODO: purpose
 """
+
 import warnings
 from datetime import datetime, timedelta
-from ocd.utils import (pcall, identity, dict_acc,
-                       pcall, get_frq_dict)
+from ocd.utils import (pcall, I, dict_acc,
+                       get_frq_dict)
 from dateutil.relativedelta import relativedelta
-
 
 
 class MacBackend(object):
@@ -18,31 +18,30 @@ class MacBackend(object):
         self.authf = {}
         self.load()
 
-
-    def load_auth_data(self,**kwargs):
-        def parse_auth(auth_type,line):
-            items = filter(identity, map(lambda x: x.strip(), line.split(' ')))
+    def load_auth_data(self, **kwargs):
+        def parse_auth(auth_type, line):
+            items = filter(I, map(lambda x: x.strip(), line.split(' ')))
             tfmt = '%Y-%m-%d %H:%M:%S'
             time = items[0]+' '+items[1]
             time = datetime.strptime(time, tfmt)
             if auth_type == 'local':
                 return{
-                    'user':items[8][1:len(items[8])-1],
-                    'ip':None,
+                    'user': items[8][1:len(items[8])-1],
+                    'ip': None,
                     'time': time,
                 }
             elif auth_type == 'ssh':
                 return{
-                    'user':items[9],
-                    'ip':items[11],
+                    'user': items[9],
+                    'ip': items[11],
                     'time': time,
                 }
                 
         try:
-            authf_local,bad = pcall('syslog -F \'$((Time)(J)) $Host $(Sender)[$(PID)]<$((Level)(str))>: $Message\' | grep \'Failed to authenticate\'')
+            authf_local, bad = pcall('syslog -F \'$((Time)(J)) $Host $(Sender)[$(PID)]<$((Level)(str))>: $Message\' | grep \'Failed to authenticate\'')
             if bad:
                 raise OSError()
-            authf_ssh,bad = pcall('syslog -F \'$((Time)(J)) $Host $(Sender)[$(PID)]<$((Level)(str))>: $Message\' | grep \'PAM: authentication error\'')
+            authf_ssh, bad = pcall('syslog -F \'$((Time)(J)) $Host $(Sender)[$(PID)]<$((Level)(str))>: $Message\' | grep \'PAM: authentication error\'')
             if bad:
                 raise OSError()
             self.authf['local'] = [parse_auth('local',l) for l in authf_local]
@@ -50,7 +49,6 @@ class MacBackend(object):
             self.authf['ssh'] = [parse_auth('ssh',l)  for l in authf_ssh]
         except OSError:
             raise Exception('`syslog` fails. Backend not supported.')
-
 
     def load(self, **kwargs):
         """ Load the system log
@@ -63,19 +61,16 @@ class MacBackend(object):
                 None for this backend.
         """
 
-
         def parse(line):
-            items = filter(identity, map(lambda x: x.strip(), line.split(' ')))
+            items = filter(I, map(lambda x: x.strip(), line.split(' ')))
 
             if items[0] == 'reboot' or items[0] == 'shutdown':
                 return
-
 
             # time format
             tfmt = '%a %b %d %H:%M'
 
             if len(items) == 10:
-
                 # parse tin
                 if len(items[5]) == 1:
                     items[5] = '0' + items[5]  # pad zero before day
@@ -89,7 +84,6 @@ class MacBackend(object):
                     if tin.day > now_day:
                         tin = tin - relativedelta(years = 1)
 
-
                 # parse tout
                 if items[7] == '-':
 
@@ -98,13 +92,13 @@ class MacBackend(object):
                         if '+' in duration:
                             time = duration.split('+')
                             hours_mins = time[1].split(':')
-                            tout = tin + timedelta(days = int(time[0]),\
-                                                            hours = int(hours_mins[0]), \
-                                                            seconds = int(hours_mins[1]) * 60)
+                            tout = tin + timedelta(days=int(time[0]),
+                                                   hours=int(hours_mins[0]),
+                                                   seconds=int(hours_mins[1]) * 60)
                         else:
                             hours_mins = duration.split(':')
-                            tout = tin + timedelta(hours = int(hours_mins[0]), \
-                                                            seconds = int(hours_mins[1]) * 60)
+                            tout = tin + timedelta(hours=int(hours_mins[0]),
+                                                   seconds=int(hours_mins[1]) * 60)
                     else:
                         duration = items[9][1:-1]
                         # logout_time = items[8]
@@ -112,13 +106,13 @@ class MacBackend(object):
                         if '+' in duration:
                             time = duration.split('+')
                             hours_mins = time[1].split(':')
-                            tout = tin + timedelta(days = int(time[0]),\
-                                                            hours = int(hours_mins[0]), \
-                                                            seconds = int(hours_mins[1]) * 60)
+                            tout = tin + timedelta(days=int(time[0]),
+                                                   hours=int(hours_mins[0]),
+                                                   seconds=int(hours_mins[1]) * 60)
                         else:
                             hours_mins = duration.split(':')
-                            tout = tin + timedelta(hours = int(hours_mins[0]), \
-                                                            seconds = int(hours_mins[1]) * 60)
+                            tout = tin + timedelta(hours=int(hours_mins[0]),
+                                                   seconds=int(hours_mins[1]) * 60)
                 else:
                     tout = None
 
@@ -146,18 +140,18 @@ class MacBackend(object):
                 # parse tout
                 if items[6] == '-':
                     # tout = ' '.join(items[7:9])
-                    if items[7] == 'shutdown' or items[7] == 'crash' :
+                    if items[7] == 'shutdown' or items[7] == 'crash':
                         duration = items[8][1:-1]
                         if '+' in duration:
                             time = duration.split('+')
                             hours_mins = time[1].split(':')
-                            tout = tin + timedelta(days = int(time[0]),\
-                                                            hours = int(hours_mins[0]), \
-                                                            seconds = int(hours_mins[1]) * 60)
+                            tout = tin + timedelta(days=int(time[0]),
+                                                   hours=int(hours_mins[0]),
+                                                   seconds=int(hours_mins[1]) * 60)
                         else:
                             hours_mins = duration.split(':')
-                            tout = tin + timedelta(hours = int(hours_mins[0]), \
-                                                            seconds = int(hours_mins[1]) * 60)
+                            tout = tin + timedelta(hours=int(hours_mins[0]),
+                                                   seconds=int(hours_mins[1]) * 60)
                     else:
 
                         duration = items[8][1:-1]
@@ -167,13 +161,13 @@ class MacBackend(object):
                         if '+' in duration:
                             time = duration.split('+')
                             hours_mins = time[1].split(':')
-                            tout = tin + timedelta(days = int(time[0]),\
-                                                            hours = int(hours_mins[0]), \
-                                                            seconds = int(hours_mins[1]) * 60)
+                            tout = tin + timedelta(days=int(time[0]),
+                                                   hours=int(hours_mins[0]),
+                                                   seconds=int(hours_mins[1]) * 60)
                         else:
                             hours_mins = duration.split(':')
-                            tout = tin + timedelta(hours = int(hours_mins[0]), \
-                                                            seconds = int(hours_mins[1]) * 60)
+                            tout = tin + timedelta(hours=int(hours_mins[0]),
+                                                   seconds=int(hours_mins[1]) * 60)
                 else:
                     tout = None
 
@@ -190,7 +184,7 @@ class MacBackend(object):
             if bad:
                 raise OSError()
             else:
-                self.last = filter(identity, [parse(l) for l in last[:-1]])
+                self.last = filter(I, [parse(l) for l in last[:-1]])
 
             self.load_auth_data()
         except OSError:
@@ -214,7 +208,6 @@ class MacBackend(object):
 
         return r
 
-
     def stat_logouts(self, time_slot):
         """ Get a dict of users and their logout freq
         Args:
@@ -231,7 +224,6 @@ class MacBackend(object):
                     dict_acc(r, {login['user']: 1})
 
         return r
-        
 
     def stat_authfailures(self, time_slot=None):
         """ Get a dict of users and their freq of authentication failure

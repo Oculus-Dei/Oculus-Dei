@@ -5,11 +5,15 @@ Created by misaka-10032 (longqic@andrew.cmu.edu).
 TODO: purpose
 """
 
+import os
+import sys
+import signal
 import subprocess as sp
+import threading as th
 from datetime import datetime
 
 
-def identity(x):
+def I(x):
     return x
 
 
@@ -58,20 +62,20 @@ def get_frq_dict(in_list):
     return d
 
 
-def dict_acc(d1, d2):
+def dict_acc(dmain, dnew):
     """ Accumulate d2 into d1
-    :param d1: dict{str->int}
-    :param d2: dict{str->int}
+    :param dmain: dict{str->int}
+    :param dnew: dict{str->int}
     :return: None
     """
-    for k, v in d2.iteritems():
-        if k in d1:
-            d1[k] += 1
+    for k, v in dnew.iteritems():
+        if k in dmain:
+            dmain[k] += 1
         else:
-            d1[k] = 1
+            dmain[k] = 1
 
 
-def pcall(cmd):
+def pcall(cmd, timeout=None):
     """ Call a cmd separated with space
     >>> stdout, stderr = pcall('ls -al')
     >>> print stdout
@@ -83,13 +87,31 @@ def pcall(cmd):
 
     Args:
         cmd (str): cmd to be called
+        timeout (int): max amount of time to be run
 
     Returns:
         list[str]: stdout separated by lines
         list[str]: stderr separated by lines
     """
-    p = sp.Popen(cmd, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
-    stdout, stderr = p.communicate()
-    stdout = filter(identity, stdout.split('\n'))
-    stderr = filter(identity, stderr.split('\n'))
-    return stdout, stderr
+    def target():
+        ps[0] = sp.Popen(cmd, shell=True, preexec_fn=os.setsid,
+                         stdout=sp.PIPE, stderr=sp.PIPE)
+        std[0], std[2] = ps[0].communicate()
+        std[0] = filter(I, std[0].split('\n'))
+        std[2] = filter(I, std[2].split('\n'))
+
+    std = [None, None, None]
+    ps = [None]
+    thread = th.Thread(target=target)
+    thread.start()
+    thread.join(timeout)
+    if thread.is_alive() and ps[0]:
+        ps[0].terminate()
+        os.killpg(os.getpgid(ps[0].pid), signal.SIGTERM)
+        thread.join()
+    return std[0], std[2]
+
+
+def sys_not_supported():
+    raise NotImplementedError('System {} not supported!'
+                              .format(sys.platform))

@@ -7,7 +7,7 @@ Linux backend for auth-based sensor
 
 import warnings
 from datetime import datetime
-from ocd.utils import pcall, identity, dict_acc
+from ocd.utils import pcall, I, dict_acc
 
 
 class LinuxBackend(object):
@@ -27,7 +27,7 @@ class LinuxBackend(object):
                 None for this backend.
         """
         def parse(line):
-            items = filter(identity, map(lambda x: x.strip(), line.split(' ')))
+            items = filter(I, map(lambda x: x.strip(), line.split(' ')))
             # special case
             if items[1] == 'system' and items[2] == 'boot':
                 items[1] = 'system boot'

@@ -8,7 +8,9 @@ Main API for sensors
 import sys
 import inspect
 
-from utils import solid_timeslot, timeslot_with_timestamps
+from utils import (solid_timeslot,
+                   timeslot_with_timestamps,
+                   sys_not_supported)
 
 
 class Sensor(object):
@@ -280,10 +282,7 @@ class AuthSensor(Sensor):
             from ocd.auth._mac import MacBackend
             backends['sys'] = MacBackend
         else:
-            def not_supported():
-                raise NotImplementedError('System {} not supported!'
-                                          .format(sys.platform))
-            backends['sys'] = not_supported
+            backends['sys'] = sys_not_supported
         return backends
 
     def __init__(self, backend='sys'):
@@ -407,15 +406,15 @@ class FileSensor(Sensor):
     @classmethod
     def get_installed_backends(cls):
         """ Get a dict of installed backends, mapping str to cls. """
-        def not_supported():
-            raise NotImplementedError('System {} not supported!'
-                                      .format(sys.platform))
         backends = {}
-        if sys.platform == 'linux2' or sys.platform == 'darwin':
+        if sys.platform == 'linux2':
             from ocd.file._linux import LinuxBackend
             backends['sys'] = LinuxBackend
+        elif sys.platform == 'darwin':
+            from ocd.file._mac import MacBackend
+            backends['sys'] = MacBackend
         else:
-            backends['sys'] = not_supported
+            backends['sys'] = sys_not_supported
         return backends
 
     def __init__(self, backend='sys'):
@@ -435,15 +434,15 @@ class FileSensor(Sensor):
 
     def unique_users(self, time_slot=None, cmd=None, fpath=None):
         """ Unique api for stat_users. See stat_users for detail. """
-        return self.stat_users(time_slot, cmd, fpath)
+        return self.stat_users(time_slot, cmd, fpath).keys()
 
     def unique_cmds(self, time_slot=None, user=None, fpath=None):
         """ Unique api for stat_cmds. See stat_cmds for detail. """
-        return self.stat_cmds(time_slot, user, fpath)
+        return self.stat_cmds(time_slot, user, fpath).keys()
 
     def unique_fpaths(self, time_slot=None, user=None, cmd=None):
         """ Unique api for stat_fpaths. See stat_fpaths for detail. """
-        return self.stat_fpaths(time_slot, user, cmd)
+        return self.stat_fpaths(time_slot, user, cmd).keys()
 
     def stat_users(self, time_slot=None, cmd=None, fpath=None):
         """ Count freq of users opening files
@@ -460,9 +459,6 @@ class FileSensor(Sensor):
         Returns:
             dict{str->int}: dict of users and counts
         """
-        time_slot = solid_timeslot(time_slot)
-        cmd = [cmd] if isinstance(cmd, str) else cmd
-        fpath = [fpath] if isinstance(fpath, str) else fpath
         return self.backend.stat_users(time_slot, cmd, fpath)
 
     def stat_cmds(self, time_slot=None, user=None, fpath=None):
@@ -481,9 +477,6 @@ class FileSensor(Sensor):
         Returns:
             dict{str->int}: dict of cmds and counts
         """
-        time_slot = solid_timeslot(time_slot)
-        user = [user] if isinstance(user, str) else user
-        fpath = [fpath] if isinstance(fpath, str) else fpath
         return self.backend.stat_cmds(time_slot, user, fpath)
 
     def stat_fpaths(self, time_slot=None, user=None, cmd=None):
@@ -502,10 +495,47 @@ class FileSensor(Sensor):
         Returns:
             dict{str->int}: dict of fpaths and counts
         """
-        time_slot = solid_timeslot(time_slot)
-        user = [user] if isinstance(user, str) else user
-        cmd = [cmd] if isinstance(cmd, str) else cmd
         return self.backend.stat_fpaths(time_slot, user, cmd)
+
+    def user_activities(self, user, time_slot=None, cmd=None, fpath=None):
+        """ Give a list of activities with regard to a user. Sorted by time.
+
+        Args:
+            user (optional[list[str]]): the user to look for.
+
+            time_slot (optional[tuple(datetime)]): a tuple of two
+                specifying the start and end time as datetime
+
+            cmd (optional[list[str]]): a list of cmds within which
+                to be filtered. Could also be a single str.
+
+            fpath (optional[list[str]]): a list of files within which
+                to be filtered. Could also be a single str.
+
+        Returns:
+            list[{'time': xxx, 'cmd': xxx, 'fpath': xxx}]
+        """
+        return self.backend.user_activities(user, time_slot, cmd, fpath)
+
+    def cmd_activities(self, cmd, time_slot=None, user=None, fpath=None):
+        """ Give a list of activities with regard to a cmd. Sorted by time.
+
+        Args:
+            cmd (optional[list[str]]): the cmd to look for.
+
+            time_slot (optional[tuple(datetime)]): a tuple of two
+                specifying the start and end time as datetime
+
+            user (optional[list[str]]): a list of users within which
+                to be filtered. Could also be a single str.
+
+            fpath (optional[list[str]]): a list of files within which
+                to be filtered. Could also be a single str.
+
+        Returns:
+            list[{'time': xxx, 'user': xxx, 'fpath': xxx}]
+        """
+        return self.backend.cmd_activities(cmd, time_slot, user, fpath)
 
     def fpath_activities(self, fpath, time_slot=None, user=None, cmd=None):
         """ Give a list of activities done to the file. Sorted by time.
@@ -523,9 +553,6 @@ class FileSensor(Sensor):
                 to be filtered. Could also be a single str.
 
         Returns:
-            list[{'user': xxx, 'cmd': xxx, 'time': xxx}]
+            list[{'time': xxx, 'user': xxx, 'cmd': xxx}]
         """
-        time_slot = solid_timeslot(time_slot)
-        user = [user] if isinstance(user, str) else user
-        cmd = [cmd] if isinstance(cmd, str) else cmd
-        return self.backend.fpath_activities(time_slot, user, cmd)
+        return self.backend.fpath_activities(fpath, time_slot, user, cmd)
