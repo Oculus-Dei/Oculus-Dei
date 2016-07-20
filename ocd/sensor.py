@@ -407,10 +407,7 @@ class FileSensor(Sensor):
     def get_installed_backends(cls):
         """ Get a dict of installed backends, mapping str to cls. """
         backends = {}
-        if sys.platform == 'linux2':
-            from ocd.file._linux import LinuxBackend
-            backends['sys'] = LinuxBackend
-        elif sys.platform == 'darwin':
+        if sys.platform == 'darwin':
             from ocd.file._mac import MacBackend
             backends['sys'] = MacBackend
         else:

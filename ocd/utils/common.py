@@ -7,6 +7,7 @@ TODO: purpose
 
 import os
 import sys
+import time
 import signal
 import subprocess as sp
 import threading as th
@@ -23,7 +24,7 @@ def dt2ts(dt):
     :param dt: datetime
     :return: timestamp
     """
-    return (dt - datetime(1970, 1, 1)).total_seconds()
+    return time.mktime(dt.timetuple())
 
 
 def solid_timeslot(time_slot):
