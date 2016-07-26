@@ -14,8 +14,8 @@ class PysharkWrapper(object):
     def __init__(self):
         self.cap = None
 
-    def sniff(self, interface, timeout=5):
-        self.cap = pyshark.LiveCapture(interface=interface)
+    def sniff(self, interface, timeout=5, output_file=None):
+        self.cap = pyshark.LiveCapture(interface=interface, output_file=output_file)
         self.cap.sniff(timeout=timeout)
         self.packets = self.cap._packets
 
@@ -23,6 +23,51 @@ class PysharkWrapper(object):
         self.cap = pyshark.FileCapture(capfile)
         self.cap.load_packets()
         self.packets = self.cap._packets
+
+    def http_req_urls(self, time_slot=None, ip=None, method=None):
+        def _filter(p):
+            if 'http' not in p:
+                return False
+            if 'request' not in p.http.field_names:
+                return False
+            if time_slot is not None:
+                start, end = time_slot
+                if float(p.sniff_timestamp) < start or \
+                   float(p.sniff_timestamp) >= end:
+                    return False
+            if ip is not None:
+                if p.ip.dst not in ip:
+                    return False
+            if method is not None:
+                if p.http.request_method.upper() not in method:
+                    return False
+            return True
+        packets = self.packets
+        packets = filter(_filter, packets)
+        urls = map(lambda p: p.http.request_full_uri, packets)
+        return urls
+
+    def stat_http_resp_ips(self, time_slot=None, content_type=None):
+        def _filter(p):
+            if 'http' not in p:
+                return False
+            if 'response' not in p.http.field_names:
+                return False
+            if time_slot is not None:
+                start, end = time_slot
+                if float(p.sniff_timestamp) < start or \
+                   float(p.sniff_timestamp) >= end:
+                    return False
+            if content_type is not None:
+                if p.http.content_type.lower() not in content_type:
+                    return False
+            return True
+        packets = self.packets
+        packets = filter(_filter, packets)
+        ips = {}
+        for p in packets:
+            utils.dict_acc(ips, {p.ip.src: 1})
+        return ips
 
     def stat_macs(self, time_slot=None, ip=None):
         """Get a dict of MAC addresses with the freq it appears
@@ -38,8 +83,8 @@ class PysharkWrapper(object):
         packets = self.packets
         if time_slot:
             start, end = time_slot
-            packets = filter(lambda p:
-                             start <= float(p.sniff_timestamp) < end, packets)
+            packets = filter(lambda p: start <= float(p.sniff_timestamp) < end,
+                             packets)
         macs = {}
         for p in packets:
             if 'ip' in p:

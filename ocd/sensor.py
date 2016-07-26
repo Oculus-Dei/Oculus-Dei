@@ -95,15 +95,18 @@ class NetworkSensor(Sensor):
         """
         super(NetworkSensor, self).__init__(backend)
 
-    def sniff(self, interface, timeout=10):
-        """Sniff from an interface for a period of time
+    def sniff(self, interface, timeout=10, output_file=None):
+        """ Sniff from an interface for a period of time
 
         Args:
             interface (str): the interface to sniff from, e.g. en0
 
             timeout (optional[int]): time to sniff
+
+            output_file (optional[str]): if specified,
+                packets will be saved to this location.
         """
-        self.backend.sniff(interface, timeout)
+        self.backend.sniff(interface, timeout, output_file)
 
     def load(self, capfile):
         """Load a capture file. Backend could change accordingly.
@@ -112,6 +115,49 @@ class NetworkSensor(Sensor):
             capfile: capture file
         """
         self.backend.load(capfile)
+
+    def http_req_urls(self, time_slot=None, ip=None, method=None):
+        """ Get a list of urls to which the host sends http requests.
+
+        Args:
+            time_slot (optional[tuple(datetime)]): tuple of datetime
+                specifying start and end time within which to be filtered
+
+            ip (optional[list(str) or str]): ips within which to be filtered
+
+            method (optional[list(str) or str]): http request method
+
+        Returns:
+            list(str): list of urls
+        """
+        if method is not None:
+            if not isinstance(method, list):
+                method = [method]
+            method = map(lambda m: m.upper(), method)
+        if ip is not None:
+            if not isinstance(ip, list):
+                ip = [ip]
+        return self.backend.http_req_urls(time_slot, ip, method)
+
+    def stat_http_resp_ips(self, time_slot=None, content_type=None):
+        """ Stat ips from which the host receives http responses.
+
+        Args:
+            time_slot (optional[tuple(datetime)]): tuple of datetime
+                specifying start and end time within which to be filtered
+
+            content_type (optional[list[str] or str]):
+                content type to be filtered.
+
+        Returns:
+            dict{str->int}: ips and freq's
+        """
+        if content_type is not None:
+            if not isinstance(content_type, list):
+                content_type = [content_type]
+            content_type = map(lambda c: c.lower(), content_type)
+        return self.backend.stat_http_resp_ips(timeslot_with_timestamps(time_slot),
+                                               content_type)
 
     def unique_macs(self, time_slot=None, ip=None):
         """Get a unique set of MAC addresses within the capture
@@ -425,7 +471,7 @@ class FileSensor(Sensor):
         """ Snoop open's for a while
 
         Args:
-            timeout (int): how long to snoop
+            timeout (optional[int]): how long to snoop.
         """
         self.backend.snoop(timeout)
 

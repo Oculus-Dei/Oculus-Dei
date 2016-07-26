@@ -16,11 +16,21 @@ class ScapyWrapper(object):
     def __init__(self):
         self.packets = None
 
-    def sniff(self, interface, timeout=5):
+    def sniff(self, interface, timeout=5, output_file=None):
         self.packets = scp.sniff(iface=interface, timeout=timeout)
+        if output_file:
+            scp.wrpcap(output_file, self.packets)
 
     def load(self, capfile):
         self.packets = scp.rdpcap(capfile)
+
+    def http_req_urls(self, time_slot=None, ip=None, method=None):
+        # TODO@manga
+        raise NotImplementedError("Not implemented in scapy backend!")
+
+    def stat_http_resp_ips(self, time_slot=None, content_type=None):
+        # TODO@manga
+        raise NotImplementedError("Not implemented in scapy backend!")
 
     def stat_macs(self, time_slot=None, ip=None):
         """Get a dict of MAC addresses with the freq it appears
