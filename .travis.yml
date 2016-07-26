@@ -1,4 +1,5 @@
 language: python
+before_script:
+    - export PYTHONPATH=$PYTHONPATH:$PWD
 script:
-    - $(shell export PYTHONPATH=$PYTHONPATH:$PWD)
     - py.test test
