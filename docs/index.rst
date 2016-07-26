@@ -6,6 +6,8 @@
 Welcome to Oculus-Dei's documentation!
 ======================================
 
+This is a **prototype** API for sensors.
+
 Contents:
 
 .. toctree::
@@ -21,4 +23,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
