@@ -8,9 +8,9 @@ Main API for sensors
 import sys
 import inspect
 
-from utils import (solid_timeslot,
-                   timeslot_with_timestamps,
-                   sys_not_supported)
+from ocd.utils import (solid_timeslot,
+                       timeslot_with_timestamps,
+                       sys_not_supported)
 
 
 class Sensor(object):
