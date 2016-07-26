@@ -6,9 +6,9 @@ All rights reserved.
 TODO: purpose
 """
 
-from sensor import (
+from ocd.sensor import (
     NetworkSensor,
     AuthSensor,
     FileSensor,
 )
-from device import Device
+from ocd.device import Device
