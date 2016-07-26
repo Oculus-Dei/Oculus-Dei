@@ -146,6 +146,24 @@ If name is str, the spec of that feature is returned.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="ocd.NetworkSensor.http_req_urls">
+<code class="descname">http_req_urls</code><span class="sig-paren">(</span><em>time_slot=None</em>, <em>ip=None</em>, <em>method=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.NetworkSensor.http_req_urls" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a list of urls to which the host sends http requests.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first docutils">
+<dt>time_slot (optional[tuple(datetime)]): tuple of datetime</dt>
+<dd>specifying start and end time within which to be filtered</dd>
+</dl>
+<p>ip (optional[list(str) or str]): ips within which to be filtered</p>
+<p class="last">method (optional[list(str) or str]): http request method</p>
+</dd>
+<dt>Returns:</dt>
+<dd>list(str): list of urls</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="ocd.NetworkSensor.load">
 <code class="descname">load</code><span class="sig-paren">(</span><em>capfile</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.NetworkSensor.load" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load a capture file. Backend could change accordingly.</p>
@@ -157,13 +175,35 @@ If name is str, the spec of that feature is returned.</p>
 
 <dl class="method">
 <dt id="ocd.NetworkSensor.sniff">
-<code class="descname">sniff</code><span class="sig-paren">(</span><em>interface</em>, <em>timeout=10</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.NetworkSensor.sniff" title="Permalink to this definition">¶</a></dt>
+<code class="descname">sniff</code><span class="sig-paren">(</span><em>interface</em>, <em>timeout=10</em>, <em>output_file=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.NetworkSensor.sniff" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sniff from an interface for a period of time</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><p class="first">interface (str): the interface to sniff from, e.g. en0</p>
-<p class="last">timeout (optional[int]): time to sniff</p>
+<p>timeout (optional[int]): time to sniff</p>
+<dl class="last docutils">
+<dt>output_file (optional[str]): if specified,</dt>
+<dd>packets will be saved to this location.</dd>
+</dl>
 </dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ocd.NetworkSensor.stat_http_resp_ips">
+<code class="descname">stat_http_resp_ips</code><span class="sig-paren">(</span><em>time_slot=None</em>, <em>content_type=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.NetworkSensor.stat_http_resp_ips" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stat ips from which the host receives http responses.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>time_slot (optional[tuple(datetime)]): tuple of datetime</dt>
+<dd>specifying start and end time within which to be filtered</dd>
+<dt>content_type (optional[list[str] or str]):</dt>
+<dd>content type to be filtered.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>dict{str-&gt;int}: ips and freq&#8217;s</dd>
 </dl>
 </dd></dl>
 
@@ -504,6 +544,27 @@ Args:</p>
 <blockquote>
 <div>backend (str): only &#8216;sys&#8217; is supported</div></blockquote>
 <dl class="method">
+<dt id="ocd.FileSensor.cmd_activities">
+<code class="descname">cmd_activities</code><span class="sig-paren">(</span><em>cmd</em>, <em>time_slot=None</em>, <em>user=None</em>, <em>fpath=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.FileSensor.cmd_activities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Give a list of activities with regard to a cmd. Sorted by time.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">cmd (optional[list[str]]): the cmd to look for.</p>
+<dl class="last docutils">
+<dt>time_slot (optional[tuple(datetime)]): a tuple of two</dt>
+<dd>specifying the start and end time as datetime</dd>
+<dt>user (optional[list[str]]): a list of users within which</dt>
+<dd>to be filtered. Could also be a single str.</dd>
+<dt>fpath (optional[list[str]]): a list of files within which</dt>
+<dd>to be filtered. Could also be a single str.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>list[{&#8216;time&#8217;: xxx, &#8216;user&#8217;: xxx, &#8216;fpath&#8217;: xxx}]</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="ocd.FileSensor.fpath_activities">
 <code class="descname">fpath_activities</code><span class="sig-paren">(</span><em>fpath</em>, <em>time_slot=None</em>, <em>user=None</em>, <em>cmd=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.FileSensor.fpath_activities" title="Permalink to this definition">¶</a></dt>
 <dd><p>Give a list of activities done to the file. Sorted by time.</p>
@@ -520,7 +581,7 @@ Args:</p>
 </dl>
 </dd>
 <dt>Returns:</dt>
-<dd>list[{&#8216;user&#8217;: xxx, &#8216;cmd&#8217;: xxx, &#8216;time&#8217;: xxx}]</dd>
+<dd>list[{&#8216;time&#8217;: xxx, &#8216;user&#8217;: xxx, &#8216;cmd&#8217;: xxx}]</dd>
 </dl>
 </dd></dl>
 
@@ -556,7 +617,7 @@ If name is str, the spec of that feature is returned.</p>
 <dd><p>Snoop open&#8217;s for a while</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd>timeout (int): how long to snoop</dd>
+<dd>timeout (optional[int]): how long to snoop.</dd>
 </dl>
 </dd></dl>
 
@@ -636,6 +697,27 @@ If name is str, the spec of that feature is returned.</p>
 <dt id="ocd.FileSensor.unique_users">
 <code class="descname">unique_users</code><span class="sig-paren">(</span><em>time_slot=None</em>, <em>cmd=None</em>, <em>fpath=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.FileSensor.unique_users" title="Permalink to this definition">¶</a></dt>
 <dd><p>Unique api for stat_users. See stat_users for detail.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ocd.FileSensor.user_activities">
+<code class="descname">user_activities</code><span class="sig-paren">(</span><em>user</em>, <em>time_slot=None</em>, <em>cmd=None</em>, <em>fpath=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ocd.FileSensor.user_activities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Give a list of activities with regard to a user. Sorted by time.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">user (optional[list[str]]): the user to look for.</p>
+<dl class="last docutils">
+<dt>time_slot (optional[tuple(datetime)]): a tuple of two</dt>
+<dd>specifying the start and end time as datetime</dd>
+<dt>cmd (optional[list[str]]): a list of cmds within which</dt>
+<dd>to be filtered. Could also be a single str.</dd>
+<dt>fpath (optional[list[str]]): a list of files within which</dt>
+<dd>to be filtered. Could also be a single str.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>list[{&#8216;time&#8217;: xxx, &#8216;cmd&#8217;: xxx, &#8216;fpath&#8217;: xxx}]</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>

@@ -43,6 +43,96 @@
             
   <div class="section" id="tutorial">
 <h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this headline">¶</a></h1>
+<p>An analyst will first initialize a device and call <cite>get_sensors()</cite> to see
+the available sensors on the device.</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6
+7</pre></div></td><td class="code"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">ocd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">device</span> <span class="o">=</span> <span class="n">ocd</span><span class="o">.</span><span class="n">Device</span><span class="p">(</span><span class="s">&#39;localhost&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sensors</span> <span class="o">=</span> <span class="n">device</span><span class="o">.</span><span class="n">get_sensors</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">sensors</span>
+<span class="go">[&lt;NetworkSensor backend=&#39;pyshark&#39;&gt;,</span>
+<span class="go"> &lt;AuthSensor backend=&#39;sys&#39;&gt;,</span>
+<span class="go"> &lt;FileSensor backend=&#39;sys&#39;&gt;]</span>
+</pre></div>
+</td></tr></table></div>
+<p>To use a sensor, analyst may first check the available features.</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6</pre></div></td><td class="code"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">sensor</span> <span class="o">=</span> <span class="n">sensors</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sensor</span><span class="o">.</span><span class="n">get_features</span><span class="p">()</span>
+<span class="go">[&#39;load&#39;, &#39;stat_macs&#39;, &#39;sniff&#39;, &#39;stat_ports&#39;, &#39;unique_ports&#39;,</span>
+<span class="go"> &#39;stat_protocols&#39;, &#39;get_supported_backends&#39;, &#39;unique_ips&#39;,</span>
+<span class="go"> &#39;unique_protocols&#39;, &#39;unique_macs&#39;, &#39;__repr__&#39;, &#39;__init__&#39;,</span>
+<span class="go"> &#39;get_installed_backends&#39;, &#39;get_features&#39;, &#39;stat_ips&#39;]</span>
+</pre></div>
+</td></tr></table></div>
+<p>To further look up the specification, analyst may pass in the feature name
+as argument.</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18</pre></div></td><td class="code"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">sensor</span><span class="o">.</span><span class="n">get_features</span><span class="p">(</span><span class="s">&#39;stat_ips&#39;</span><span class="p">)</span>
+<span class="go">Get a dict of ips and their freq</span>
+
+<span class="go">It can be either src ip or dst ip. If src ip is specified,</span>
+<span class="go">then dst ips are returned, vice versa. If none is specified,</span>
+<span class="go">all unique ips will be returned.</span>
+
+<span class="go">Args:</span>
+<span class="go">    time_slot (optional[tuple(datetime)]): a tuple of two</span>
+<span class="go">        specifying the start and end time as datetime</span>
+
+<span class="go">    src_ip (optional[list(str), or single str]): src ip(s).</span>
+
+<span class="go">    dst_ip (optional[list(str), or single str]): dst ip(s),</span>
+<span class="go">        src_ip and dst_ip should not be both specified.</span>
+
+<span class="go">Returns:</span>
+<span class="go">    dict{str-&gt;int}: ip addresses and freq.</span>
+</pre></div>
+</td></tr></table></div>
+<p>To call this <cite>stat_ips()</cite>, analyst may first sniff for a while, and then see
+the result.</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6
+7
+8</pre></div></td><td class="code"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">sensor</span><span class="o">.</span><span class="n">sniff</span><span class="p">(</span><span class="n">interface</span><span class="o">=</span><span class="s">&#39;en0&#39;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sensor</span><span class="o">.</span><span class="n">stat_ips</span><span class="p">()</span>
+<span class="go">{&#39;104.107.25.25&#39;: 32,</span>
+<span class="go"> &#39;104.20.14.64&#39;: 48,</span>
+<span class="go"> &#39;128.2.220.105&#39;: 13,</span>
+<span class="go"> &#39;128.237.160.2&#39;: 4,</span>
+<span class="go"> ...</span>
+<span class="go"> &#39;8.8.8.8&#39;: 52}</span>
+</pre></div>
+</td></tr></table></div>
+<p>Other sensors are similar. See <a class="reference external" href="api.html">API reference</a> for detail.</p>
 </div>
 
 
