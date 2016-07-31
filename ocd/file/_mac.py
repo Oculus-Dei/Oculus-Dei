@@ -5,8 +5,9 @@ Created by misaka-10032 (longqic@andrew.cmu.edu).
 TODO: purpose
 """
 
-from ocd.utils import pcall, I, stat, pick, cond
 from datetime import datetime
+import pickle
+from ocd.utils import pcall, I, stat, pick, cond
 
 
 class MacBackend(object):
@@ -20,11 +21,13 @@ class MacBackend(object):
         out = map(lambda l: filter(I, l.split(' ')), out)
         self.users = {int(uid): user for user, uid in out}
 
-    def snoop(self, timeout=10):
+    def snoop(self, timeout=10, output_file=None):
         """ Snoop open's for a while
 
         Args:
             timeout (int): how long to snoop
+
+            output_file (optional[str]): if specified, save log to file.
         """
         out, err = pcall('opensnoop -v', timeout)
         if len(err) > 0 and 'additional privileges' in err[0]:
@@ -46,6 +49,19 @@ class MacBackend(object):
                 'cmd':  cmd,
                 'fpath': fpath,
             })
+
+        if output_file is not None:
+            with open(output_file, 'w') as f:
+                pickle.dump(self.logs, f)
+
+    def load(self, file):
+        """ Load the snoop result from file
+
+        Args:
+            file (str): the path to snoop file.
+        """
+        with open(file) as f:
+            self.logs = pickle.load(f)
 
     def stat_users(self, time_slot, cmd=None, fpath=None):
         """ Count freq of users opening files

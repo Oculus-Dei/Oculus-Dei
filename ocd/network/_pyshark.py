@@ -58,7 +58,7 @@ class PysharkWrapper(object):
                 if float(p.sniff_timestamp) < start or \
                    float(p.sniff_timestamp) >= end:
                     return False
-            if content_type is not None:
+            if content_type is not None and 'content_type' in p.http.field_names:
                 if p.http.content_type.lower() not in content_type:
                     return False
             return True

@@ -99,7 +99,8 @@ class NetworkSensor(Sensor):
         """ Sniff from an interface for a period of time
 
         Args:
-            interface (str): the interface to sniff from, e.g. en0
+            interface (list[str] or str): the interface to sniff from,
+                e.g. 'en0' or ['en0', 'en1']
 
             timeout (optional[int]): time to sniff
 
@@ -467,13 +468,23 @@ class FileSensor(Sensor):
         """
         super(FileSensor, self).__init__(backend)
 
-    def snoop(self, timeout=10):
+    def snoop(self, timeout=10, output_file=None):
         """ Snoop open's for a while
 
         Args:
             timeout (optional[int]): how long to snoop.
+
+            output_file (optional[str]): if specified, save log to file.
         """
-        self.backend.snoop(timeout)
+        self.backend.snoop(timeout, output_file)
+
+    def load(self, file):
+        """ Load the snoop result from file
+
+        Args:
+            file (str): the path to snoop file.
+        """
+        self.backend.load(file)
 
     def unique_users(self, time_slot=None, cmd=None, fpath=None):
         """ Unique api for stat_users. See stat_users for detail. """
