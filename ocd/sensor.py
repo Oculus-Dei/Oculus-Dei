@@ -138,7 +138,7 @@ class NetworkSensor(Sensor):
         if ip is not None:
             if not isinstance(ip, list):
                 ip = [ip]
-        return self.backend.http_req_urls(time_slot, ip, method)
+        return self.backend.http_req_urls(timeslot_with_timestamps(time_slot), ip, method)
 
     def stat_http_resp_ips(self, time_slot=None, content_type=None):
         """ Stat ips from which the host receives http responses.
