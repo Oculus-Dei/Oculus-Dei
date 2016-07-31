@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-from distutils.core import setup
+from setuptools import setup, find_packages
 
 setup(name='ocd',
       version='1.0',
@@ -9,6 +9,6 @@ setup(name='ocd',
       author='Oculus-Dei',
       author_email='longqic@andrew.cmu.edu',
       url='https://github.com/Oculus-Dei/Oculus-Dei',
-      packages=['ocd'],
+      packages=find_packages(),
      )
 
